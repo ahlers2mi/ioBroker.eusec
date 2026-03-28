@@ -1,10 +1,10 @@
-import net from "net";
-import path from "path";
+import net from "node:net";
+import path from "node:path";
 import ffmpeg from "@bropat/fluent-ffmpeg";
 import pathToFfmpeg from "ffmpeg-for-homebridge";
-import { Readable } from "stream";
+import { Readable } from "node:stream";
 import { StreamMetadata, AudioCodec, VideoCodec } from "eufy-security-client";
-import { tmpdir } from "os";
+import { tmpdir } from "node:os";
 import fse from "fs-extra";
 
 import stream from "node:stream";

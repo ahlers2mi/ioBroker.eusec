@@ -6,14 +6,14 @@
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { strict } from "assert";
-import * as path from "path";
+import { strict } from "node:assert";
+import * as path from "node:path";
 import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError, LoginOptions, Picture, StationNotFoundError, ensureError, LogLevel, TFCardStatus } from "eufy-security-client";
 import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
 import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
-import { Readable } from "stream";
-import util from "util";
-import childProcess from "child_process";
+import { Readable } from "node:stream";
+import util from "node:util";
+import childProcess from "node:child_process";
 import pathToGo2rtc from "go2rtc-static";
 import pathToFfmpeg from "ffmpeg-for-homebridge";
 
