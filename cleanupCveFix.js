@@ -9,7 +9,7 @@
  * Usage: node cleanupCveFix.js
  */
 
-const { execSync } = require('child_process');
+const { execSync } = require('node:child_process');
 
 /**
  * Log a message with timestamp

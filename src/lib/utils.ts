@@ -1,5 +1,5 @@
 import { CommandType, Device } from "eufy-security-client";
-import path from "path";
+import path from "node:path";
 import fse from "fs-extra";
 import * as utils from "@iobroker/adapter-core";
 
