@@ -13,7 +13,8 @@
             "xs": 12,
             "sm": 12,
             "md": 12,
-            "lg": 12
+            "lg": 12,
+            "xl": 12
           },
           "username": {
             "newLine": true,
@@ -22,7 +23,8 @@
             "xs": 12,
             "sm": 12,
             "md": 6,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "password": {
             "type": "password",
@@ -32,7 +34,8 @@
             "xs": 12,
             "sm": 12,
             "md": 8,
-            "lg": 6
+            "lg": 6,
+            "xl": 6
           },
           "country": {
             "newLine": true,
@@ -1047,7 +1050,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "otherHeader": {
             "newLine": true,
@@ -1057,7 +1061,8 @@
             "xs": 12,
             "sm": 12,
             "md": 12,
-            "lg": 12
+            "lg": 12,
+            "xl": 12
           },
           "pollingInterval": {
             "newLine": true,
@@ -1067,7 +1072,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "eventDuration": {
             "type": "number",
@@ -1077,7 +1083,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "alarmSoundDuration": {
             "type": "number",
@@ -1086,7 +1093,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "p2pConnectionType": {
             "newLine": true,
@@ -1105,7 +1113,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "acceptInvitations": {
             "newLine": true,
@@ -1114,7 +1123,8 @@
             "xs": 12,
             "sm": 12,
             "md": 6,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           }
         }
       },
@@ -1129,7 +1139,8 @@
             "xs": 12,
             "sm": 12,
             "md": 12,
-            "lg": 12
+            "lg": 12,
+            "xl": 12
           },
           "hostname": {
             "newLine": false,
@@ -1138,7 +1149,8 @@
             "xs": 12,
             "sm": 12,
             "md": 6,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "https": {
             "type": "checkbox",
@@ -1146,7 +1158,8 @@
             "xs": 12,
             "sm": 12,
             "md": 6,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "maxLivestreamDuration": {
             "newLine": true,
@@ -1155,7 +1168,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "go2rtcHeader": {
             "type": "header",
@@ -1164,7 +1178,8 @@
             "xs": 12,
             "sm": 12,
             "md": 12,
-            "lg": 12
+            "lg": 12,
+            "xl": 12
           },
           "go2rtc_api_port": {
             "type": "number",
@@ -1172,7 +1187,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "go2rtc_srtp_port": {
             "type": "number",
@@ -1180,7 +1196,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "go2rtc_webrtc_port": {
             "type": "number",
@@ -1188,7 +1205,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "go2rtc_rtsp_port": {
             "type": "number",
@@ -1196,7 +1214,8 @@
             "xs": 12,
             "sm": 12,
             "md": 4,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "go2rtc_rtsp_username": {
             "newLine": true,
@@ -1205,7 +1224,8 @@
             "xs": 12,
             "sm": 12,
             "md": 6,
-            "lg": 3
+            "lg": 3,
+            "xl": 3
           },
           "go2rtc_rtsp_password": {
             "type": "password",
@@ -1215,7 +1235,8 @@
             "xs": 12,
             "sm": 12,
             "md": 8,
-            "lg": 6
+            "lg": 6,
+            "xl": 6
           }
         }
       }

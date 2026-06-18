@@ -32,12 +32,12 @@ __export(main_exports, {
 });
 module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
-var path = __toESM(require("path"));
+var path = __toESM(require("node:path"));
 var import_eufy_security_client = require("eufy-security-client");
 var import_i18n_iso_countries = require("i18n-iso-countries");
 var import_i18n_iso_languages = require("@cospired/i18n-iso-languages");
-var import_util = __toESM(require("util"));
-var import_child_process = __toESM(require("child_process"));
+var import_node_util = __toESM(require("node:util"));
+var import_node_child_process = __toESM(require("node:child_process"));
 var import_go2rtc_static = __toESM(require("go2rtc-static"));
 var import_ffmpeg_for_homebridge = __toESM(require("ffmpeg-for-homebridge"));
 var import_types = require("./lib/types");
@@ -210,14 +210,14 @@ class euSec extends utils.Adapter {
       const nodeMajorVersion = nodeVersion.split(".")[0];
       let fixNeeded;
       switch (parseInt(nodeMajorVersion)) {
-        case 18:
-          fixNeeded = nodeVersion.localeCompare("18.19.1", void 0, { numeric: true, sensitivity: "base" });
-          break;
+        // node 18 is no longer supported
         case 20:
           fixNeeded = nodeVersion.localeCompare("20.11.1", void 0, { numeric: true, sensitivity: "base" });
           break;
+        // node 21 is and was not supported
+        // node 22 and newer do NOT require any fix
         default:
-          fixNeeded = nodeVersion.localeCompare("21.6.2", void 0, { numeric: true, sensitivity: "base" });
+          fixNeeded = -1;
           break;
       }
       if (fixNeeded >= 0) {
@@ -317,6 +317,7 @@ class euSec extends utils.Adapter {
               "listen": `:${this.config.go2rtc_webrtc_port}`
             },
             "ffmpeg": {
+              // @ts-expect-error old code
               "bin": import_ffmpeg_for_homebridge.default !== "" && import_ffmpeg_for_homebridge.default !== void 0 ? import_ffmpeg_for_homebridge.default : "ffmpeg"
             },
             "streams": {}
@@ -337,7 +338,7 @@ class euSec extends utils.Adapter {
           for (const device of await this.eufy.getDevices()) {
             go2rtcConfig.streams[device.getSerial()] = null;
           }
-          const go2rtc = import_child_process.default.spawn(import_go2rtc_static.default, ["-config", JSON.stringify(go2rtcConfig)], { shell: false, detached: false, windowsHide: true });
+          const go2rtc = import_node_child_process.default.spawn(import_go2rtc_static.default, ["-config", JSON.stringify(go2rtcConfig)], { shell: false, detached: false, windowsHide: true });
           go2rtc.on("error", (error) => {
             this.log.error(`go2rtc error: ${error}`);
           });
@@ -771,7 +772,7 @@ class euSec extends utils.Adapter {
           obj.native.commandId = property.commandId;
           changed = true;
         }
-        if (obj.common !== void 0 && !import_util.default.isDeepStrictEqual(obj.common, state)) {
+        if (obj.common !== void 0 && !import_node_util.default.isDeepStrictEqual(obj.common, state)) {
           changed = true;
         }
         if (changed) {

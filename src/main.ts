@@ -6,14 +6,14 @@
 // you need to create an adapter
 import * as utils from "@iobroker/adapter-core";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { strict } from "assert";
-import * as path from "path";
+import { strict } from "node:assert";
+import * as path from "node:path";
 import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError, LoginOptions, Picture, StationNotFoundError, ensureError, LogLevel, TFCardStatus } from "eufy-security-client";
 import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
 import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
-import { Readable } from "stream";
-import util from "util";
-import childProcess from "child_process";
+import { Readable } from "node:stream";
+import util from "node:util";
+import childProcess from "node:child_process";
 import pathToGo2rtc from "go2rtc-static";
 import pathToFfmpeg from "ffmpeg-for-homebridge";
 
@@ -194,6 +194,9 @@ export class euSec extends utils.Adapter {
         this.subscribeStates("verify_code");
         this.subscribeStates("captcha");
 
+        // -------------------------------------------------------------------------------
+        // The following sequence can be removed as soon as node 22 is required as minimum
+        // -------------------------------------------------------------------------------
         const hosts = await this.getForeignObjectsAsync("system.host.*", "host");
         if (hosts !== undefined && hosts !== null && Object.values(hosts).length !== 0) {
             if (this.config.hostname === "") {
@@ -205,14 +208,14 @@ export class euSec extends utils.Adapter {
 
             let fixNeeded;
             switch (parseInt(nodeMajorVersion)) {
-                case 18:
-                    fixNeeded = nodeVersion.localeCompare("18.19.1", undefined, { numeric: true, sensitivity: "base" });
-                    break;
+                // node 18 is no longer supported
                 case 20:
                     fixNeeded = nodeVersion.localeCompare("20.11.1", undefined, { numeric: true, sensitivity: "base" });
                     break;
+                // node 21 is and was not supported
+                // node 22 and newer do NOT require any fix
                 default:
-                    fixNeeded = nodeVersion.localeCompare("21.6.2", undefined, { numeric: true, sensitivity: "base" });
+                    fixNeeded = -1; // no fix
                     break;
             }
             if (fixNeeded >= 0) {
@@ -227,6 +230,7 @@ export class euSec extends utils.Adapter {
                 }
             }
         }
+        // -------------------------------------------------------------------------------
 
         if (!this.skipInit) {
             const systemConfig = await this.getForeignObjectAsync("system.config");
@@ -329,6 +333,7 @@ export class euSec extends utils.Adapter {
                             "listen": `:${this.config.go2rtc_webrtc_port}`
                         },
                         "ffmpeg": {
+                            // @ts-expect-error old code
                             "bin": pathToFfmpeg !== "" && pathToFfmpeg !== undefined ? pathToFfmpeg : "ffmpeg",
                         },
                         "streams": {},

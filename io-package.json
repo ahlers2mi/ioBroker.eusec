@@ -1,194 +1,210 @@
 {
-    "common": {
-        "name": "eusec",
-        "version": "1.3.3",
-        "news": {
-            "1.3.3": {
-                "en": "Updated version of the package eufy-security-client (3.1.1)\n",
-                "uk": "Updated version of the package eufy-security-client (3.1.1)\n",
-                "de": "Version des Pakets eufy-security-client (3.1.1) aktualisiert\n",
-                "ru": "Обновленная версия пакета eufy-security-client (3.1.1)\n",
-                "pt": "Versão atualizada do pacote eufy-security-client (3.1.1)\n",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (3.1.1)\n",
-                "fr": "Version mise à jour du paquet eufy-security-client (3.1.1)\n",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (3.1.1)\n",
-                "es": "Versión actualizada del paquete eufy-security-client (3.1.1)\n",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (3.1.1)\n",
-                "zh-cn": "包 eufy-security-client (3.1.1) 的更新版本\n"
-            },
-            "1.3.2": {
-                "en": "Fixed issue #440\n",
-                "uk": "Fixed issue #440\n",
-                "de": "Problem #440 behoben\n",
-                "ru": "Исправлена проблема #440\n",
-                "pt": "Corrigido o problema #440\n",
-                "nl": "Probleem #440 opgelost\n",
-                "fr": "Correction du problème #440\n",
-                "it": "Risolto il problema #440\n",
-                "es": "Solucionado el problema #440\n",
-                "pl": "Naprawiono błąd #440\n",
-                "zh-cn": "修正問題 #440\n"
-            },
-            "1.3.1": {
-                "en": "Fixed issues #436, #439\n",
-                "uk": "Fixed issues #436, #439\n",
-                "de": "Behobene Probleme #436, #439\n",
-                "ru": "Исправлены проблемы #436, #439\n",
-                "pt": "Problemas corrigidos #436, #439\n",
-                "nl": "Problemen opgelost #436, #439\n",
-                "fr": "Correction des problèmes #436, #439\n",
-                "it": "Risolti i problemi #436, #439\n",
-                "es": "Solucionados los problemas #436, #439\n",
-                "pl": "Naprawiono błędy #436, #439\n",
-                "zh-cn": "修正問題 #436、#439\n"
-            },
-            "1.3.0": {
-                "en": "Requires ioBroker.js-controller version >= 6.0.0\nRequires ioBroker.admin version >= 7.0.12\nRequires node version >= 20\nAdded support for Floodlight Cam E340 (T8425; #428)\nAdded support for Solar Wall Light Cam S120 (T84A0; #406)\nAdded support for Indoor Cam S350 (T8416; #403)\nAdded support for eufyCam E330 (Professional; T8600; #391)\nAdded support for SoloCam S340 (T8170; #392, #399)\nImplemented sendTo functionality (#294)\nUpdated version of the package eufy-security-client (3.1.0)\nUpdated version of the package go2rtc-static (1.9.4)\nFixed issues #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "uk": "Requires ioBroker.js-controller version >= 6.0.0\nRequires ioBroker.admin version >= 7.0.12\nRequires node version >= 20\nAdded support for Floodlight Cam E340 (T8425; #428)\nAdded support for Solar Wall Light Cam S120 (T84A0; #406)\nAdded support for Indoor Cam S350 (T8416; #403)\nAdded support for eufyCam E330 (Professional; T8600; #391)\nAdded support for SoloCam S340 (T8170; #392, #399)\nImplemented sendTo functionality (#294)\nUpdated version of the package eufy-security-client (3.1.0)\nUpdated version of the package go2rtc-static (1.9.4)\nFixed issues #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "de": "Erfordert ioBroker.js-controller Version >= 6.0.0\nErfordert ioBroker.admin Version >= 7.0.12\nErfordert Node-Version >= 20\nUnterstützung für Floodlight Cam E340 (T8425; #428) hinzugefügt\nUnterstützung für Solar Wall Light Cam S120 (T84A0; #406) hinzugefügt\nUnterstützung für Indoor Cam S350 (T8416; #403) hinzugefügt\nUnterstützung für eufyCam E330 (Professional; T8600; #391) hinzugefügt\nUnterstützung für SoloCam S340 (T8170; #392, #399) hinzugefügt\nSendTo-Funktionalität implementiert (#294)\nVersion des Pakets eufy-security-client (3.1.0) aktualisiert\nAktualisierte Version des Pakets go2rtc-static (1.9.4)\nBehobene Probleme #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "ru": "Требуется версия ioBroker.js-controller >= 6.0.0\nТребуется версия ioBroker.admin >= 7.0.12\nТребуется версия node >= 20\nДобавлена поддержка Floodlight Cam E340 (T8425; #428)\nДобавлена поддержка Solar Wall Light Cam S120 (T84A0; #406)\nДобавлена поддержка Indoor Cam S350 (T8416; #403)\nДобавлена поддержка eufyCam E330 (Professional; T8600; #391)\nДобавлена поддержка SoloCam S340 (T8170; #392, #399)\nРеализована функциональность sendTo (#294)\nОбновленная версия пакета eufy-security-client (3.1.0)\nОбновлена версия пакета go2rtc-static (1.9.4)\nИсправлены проблемы #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "pt": "Requer ioBroker.js-controller versão >= 6.0.0\nRequer ioBroker.admin versão >= 7.0.12\nRequer node versão >= 20\nAdicionado suporte para Floodlight Cam E340 (T8425; #428)\nAdicionado suporte para Solar Wall Light Cam S120 (T84A0; #406)\nAdicionado suporte para Indoor Cam S350 (T8416; #403)\nAdicionado suporte para eufyCam E330 (Professional; T8600; #391)\nAdicionado suporte para SoloCam S340 (T8170; #392, #399)\nImplementada a funcionalidade sendTo (#294)\nVersão atualizada do pacote eufy-security-client (3.1.0)\nVersão atualizada do pacote go2rtc-static (1.9.4)\nProblemas corrigidos #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "nl": "Vereist ioBroker.js-controller versie >= 6.0.0\nVereist ioBroker.admin versie >= 7.0.12\nVereist node versie >= 20\nOndersteuning toegevoegd voor Floodlight Cam E340 (T8425; #428)\nOndersteuning toegevoegd voor Solar Wall Light Cam S120 (T84A0; #406)\nOndersteuning toegevoegd voor Indoor Cam S350 (T8416; #403)\nOndersteuning toegevoegd voor eufyCam E330 (Professional; T8600; #391)\nOndersteuning toegevoegd voor SoloCam S340 (T8170; #392, #399)\nStuurTo functionaliteit geïmplementeerd (#294)\nBijgewerkte versie van het pakket eufy-security-client (3.1.0)\nBijgewerkte versie van het pakket go2rtc-static (1.9.4)\nProblemen opgelost #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "fr": "Nécessite une version de ioBroker.js-controller >= 6.0.0\nNécessite une version de ioBroker.admin >= 7.0.12\nNécessite une version de node >= 20\nAjout de la prise en charge de la Floodlight Cam E340 (T8425; #428)\nAjout de la prise en charge de la Solar Wall Light Cam S120 (T84A0; #406)\nAjout de la prise en charge de la Indoor Cam S350 (T8416; #403)\nAjout de la prise en charge de la eufyCam E330 (Professional; T8600; #391)\nAjout de la prise en charge de la SoloCam S340 (T8170; #392, #399)\nImplémentation de la fonctionnalité sendTo (#294)\nVersion mise à jour du paquet eufy-security-client (3.1.0)\nVersion mise à jour du paquet go2rtc-static (1.9.4)\nCorrection des problèmes #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "it": "Richiede la versione di ioBroker.js-controller >= 6.0.0\nRichiede la versione di ioBroker.admin >= 7.0.12\nRichiede la versione di node >= 20\nAggiunto il supporto per Floodlight Cam E340 (T8425; #428)\nAggiunto il supporto per Solar Wall Light Cam S120 (T84A0; #406)\nAggiunto il supporto per Indoor Cam S350 (T8416; #403)\nAggiunto il supporto per eufyCam E330 (Professional; T8600; #391)\nAggiunto il supporto per SoloCam S340 (T8170; #392, #399)\nImplementata la funzionalità sendTo (#294)\nAggiornata la versione del pacchetto eufy-security-client (3.1.0)\nVersione aggiornata del pacchetto go2rtc-static (1.9.4)\nRisolti i problemi #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "es": "Requiere ioBroker.js-controller versión >= 6.0.0\nRequiere ioBroker.admin versión >= 7.0.12\nRequiere node versión >= 20\nAñadido soporte para Floodlight Cam E340 (T8425; #428)\nAñadido soporte para Solar Wall Light Cam S120 (T84A0; #406)\nAñadido soporte para Indoor Cam S350 (T8416; #403)\nAñadido soporte para eufyCam E330 (Professional; T8600; #391)\nAñadido soporte para SoloCam S340 (T8170; #392, #399)\nImplementada la funcionalidad sendTo (#294)\nVersión actualizada del paquete eufy-security-client (3.1.0)\nVersión actualizada del paquete go2rtc-static (1.9.4)\nSolucionados los problemas #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "pl": "Wymaga ioBroker.js-controller w wersji >= 6.0.0\nWymaga ioBroker.admin w wersji >= 7.0.12\nWymaga node w wersji >= 20\nDodano obsługę Floodlight Cam E340 (T8425; #428).\nDodano obsługę Solar Wall Light Cam S120 (T84A0; #406).\nDodano obsługę Indoor Cam S350 (T8416; #403).\nDodano obsługę eufyCam E330 (Professional; T8600; #391).\nDodano obsługę SoloCam S340 (T8170; #392, #399).\nZaimplementowano funkcję sendTo (#294)\nZaktualizowana wersja pakietu eufy-security-client (3.1.0)\nZaktualizowano wersję pakietu go2rtc-static (1.9.4)\nNaprawiono błędy #371, #376, #379, #380, #387, #420, #422, #432\n",
-                "zh-cn": "要求 ioBroker.js-controller 版本 >= 6.0.0\n要求 ioBroker.admin 版本 >= 7.0.12\n要求 node 版本 >= 20\n已添加对 Floodlight Cam E340（T8425; #428）的支持\n已添加对 Solar Wall Light Cam S120（T84A0; #406）的支持\n已添加对 Indoor Cam S350（T8416; #403）的支持\n已添加对 eufyCam E330（Professional; T8600; #391）的支持\n已添加对 SoloCam S340（T8170; #392, #399）的支持\n執行 sendTo 功能 (#294)\n包 eufy-security-client (3.1.0) 的更新版本\n软件包 go2rtc-static 的更新版本 (1.9.4)\n修正問題 #371、#376、#379、#380、#387、#420、#422、#432\n"
-            },
-            "1.2.1": {
-                "en": "Updated version of the package eufy-security-client (2.9.1)\n",
-                "uk": "Updated version of the package eufy-security-client (2.9.1)\n",
-                "de": "Version des Pakets eufy-security-client (2.9.1) aktualisiert\n",
-                "ru": "Обновленная версия пакета eufy-security-client (2.9.1)\n",
-                "pt": "Versão atualizada do pacote eufy-security-client (2.9.1)\n",
-                "nl": "Bijgewerkte versie van het pakket eufy-security-client (2.9.1)\n",
-                "fr": "Version mise à jour du paquet eufy-security-client (2.9.1)\n",
-                "it": "Aggiornata la versione del pacchetto eufy-security-client (2.9.1)\n",
-                "es": "Versión actualizada del paquete eufy-security-client (2.9.1)\n",
-                "pl": "Zaktualizowana wersja pakietu eufy-security-client (2.9.1)\n",
-                "zh-cn": "包 eufy-security-client (2.9.1) 的更新版本\n"
-            }
-        },
-        "titleLang": {
-            "en": "euSec",
-            "uk": "euSec",
-            "de": "euSec",
-            "ru": "euSec",
-            "pt": "euSec",
-            "nl": "euSec",
-            "fr": "euSec",
-            "it": "euSec",
-            "es": "euSec",
-            "pl": "euSec",
-            "zh-cn": "euSec"
-        },
-        "desc": {
-            "en": "Support for Eufy-Security cameras with stations",
-            "uk": "Support for Eufy-Security cameras with stations",
-            "de": "Unterstützung für Eufy-Security-Kameras mit Stationen",
-            "ru": "Поддержка камер Eufy-Security со станциями",
-            "pt": "Suporte para câmeras de segurança Eufy com estações",
-            "nl": "Ondersteuning voor Eufy-Security-camera's met stations",
-            "fr": "Prise en charge des caméras Eufy-Security avec stations",
-            "it": "Supporto per telecamere Eufy-Security con stazioni",
-            "es": "Soporte para cámaras Eufy-Security con estaciones",
-            "pl": "Wsparcie dla kamer Eufy-Security ze stacjami",
-            "zh-cn": "支持带站的Eufy-Security摄像机"
-        },
-        "authors": [
-            "bropat <patrick.broetto@gmail.com>"
-        ],
-        "keywords": [
-            "eufy",
-            "eufycam",
-            "cam",
-            "cameras",
-            "security",
-            "doorbell",
-            "eufy-security"
-        ],
-        "licenseInformation": {
-            "license": "MIT",
-            "type": "free"
-        },
-        "platform": "Javascript/Node.js",
-        "icon": "eusec.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/bropat/ioBroker.eusec/master/admin/eusec.png",
-        "readme": "https://github.com/bropat/ioBroker.eusec/blob/master/README.md",
-        "loglevel": "info",
-        "mode": "daemon",
-        "type": "alarm",
-        "compact": false,
-        "connectionType": "cloud",
-        "dataSource": "poll",
-        "tier": 2,
-        "messagebox": true,
-        "dependencies": [
-            {
-                "js-controller": ">=6.0.0"
-            }
-        ],
-        "globalDependencies": [
-            {
-                "admin": ">=7.0.12"
-            }
-        ],
-        "dataFolder": "eusec.%INSTANCE%",
-        "adminUI": {
-            "config": "json"
-        }
+  "common": {
+    "name": "eusec",
+    "version": "2.0.4",
+    "news": {
+      "2.0.4": {
+        "en": "Use eufy-security-client 4.0.0 with auto-detected geometry for v2_eufysecurity event thumbnails (fixes sheared/colour-corrupted images and .undefined file extension)",
+        "de": "Nutzt eufy-security-client 4.0.0 mit automatischer Geometrie-Erkennung für v2_eufysecurity-Ereignis-Thumbnails (behebt verzerrte/farbverfälschte Bilder und .undefined-Dateiendung)",
+        "ru": "Использует eufy-security-client 4.0.0 с автоопределением геометрии для миниатюр событий v2_eufysecurity (исправляет искажённые изображения и расширение .undefined)",
+        "pt": "Usa eufy-security-client 4.0.0 com geometria detetada automaticamente para miniaturas de eventos v2_eufysecurity (corrige imagens distorcidas e extensão .undefined)",
+        "nl": "Gebruikt eufy-security-client 4.0.0 met automatisch gedetecteerde geometrie voor v2_eufysecurity-gebeurtenisthumbnails (lost vervormde afbeeldingen en .undefined-extensie op)",
+        "fr": "Utilise eufy-security-client 4.0.0 avec géométrie détectée automatiquement pour les vignettes d'événements v2_eufysecurity (corrige les images déformées et l'extension .undefined)",
+        "it": "Usa eufy-security-client 4.0.0 con geometria rilevata automaticamente per le miniature degli eventi v2_eufysecurity (corregge immagini distorte ed estensione .undefined)",
+        "es": "Usa eufy-security-client 4.0.0 con geometría detectada automáticamente para las miniaturas de eventos v2_eufysecurity (corrige imágenes distorsionadas y la extensión .undefined)",
+        "pl": "Używa eufy-security-client 4.0.0 z automatycznie wykrywaną geometrią miniatur zdarzeń v2_eufysecurity (naprawia zniekształcone obrazy i rozszerzenie .undefined)",
+        "uk": "Використовує eufy-security-client 4.0.0 з автоматичним визначенням геометрії для мініатюр подій v2_eufysecurity (виправляє спотворені зображення та розширення .undefined)",
+        "zh-cn": "使用 eufy-security-client 4.0.0，自动检测 v2_eufysecurity 事件缩略图的几何参数（修复图像变形和 .undefined 文件扩展名问题）"
+      },
+      "2.0.3": {
+        "en": "Remove fix for CVE-2023-46809 for node.js 22 and newer",
+        "de": "Entfernen Sie Fix für CVE-2023-46809 für node.js 22 und neuer",
+        "ru": "Удалить исправление для CVE-2023-46809 для node.js 22 и новее",
+        "pt": "Remover correção para CVE-2023-46809 para nod.js 22 e mais recente",
+        "nl": "Verwijder fix voor CVE-202-3-46809 voor node.js 22 en nieuwer",
+        "fr": "Supprimer fix pour CVE-2023-46809 pour node.js 22 et plus récent",
+        "it": "Rimuovere la correzione per CVE-2023-46809 per node.js 22 e più recente",
+        "es": "Retire la fijación para CVE-2023-46809 para node.js 22 y nuevo",
+        "pl": "Usuń fix dla CVE- 2023- 46809 dla node.js 22 i nowszych",
+        "uk": "Видалити виправити для CVE-2023-46809 для node.js 22 і newer",
+        "zh-cn": "删除CVE-2023-46809节点和较新节点的固定"
+      },
+      "2.0.0": {
+        "en": "Adapter has been migrated to iobroker-community-adapters organisation\nAdapter requires node.js >= 20, js-controller >= 6.0.11 and admin >= 7.6.17 now\nDependencies have been updated",
+        "de": "Adapter wurde auf iobroker-community-Adapter Organisation migriert\nAdapter benötigt node.js >= 20, js-controller >= 6.0.11 und admin >= 7.6.17 jetzt\nAbhängigkeiten wurden aktualisiert",
+        "ru": "Адаптер был перенесен в организацию адаптации сообщества йоброкеров\nАдаптер требует node.js >= 20, js-контроллер >= 6.0.11 и админ >= 7.6.17 сейчас\nЗависимости были обновлены",
+        "pt": "Adaptador foi migrado para iobroker-community-adaptadores organização\nO adaptador necessita de nodo.js >= 20, js-controlador >= 6.0.11 e administrador >= 7.6.17 agora\nAs dependências foram atualizadas",
+        "nl": "Adapter is gemigreerd naar iobroker-community-adapters organisatie\nVoor adapters zijn node.js < 20, js-controller <= 6,0.11 en admin <= 7.6.17 nu vereist\nAfhankelijkheden zijn bijgewerkt",
+        "fr": "L'adaptateur a été transféré vers l'organisation iobroker-community-adapters\nAdapter nécessite node.js >= 20, js-controller >= 6.0.11 et admin >= 7.6.17 maintenant\nLes dépendances ont été actualisées",
+        "it": "L'adattatore è stato migrato all'organizzazione di hobroker-community-adapters\nAdattatore richiede node.js >= 20, js-controller >= 6.0.11 e admin >= 7.6.17 ora\nLe dipendenze sono state aggiornate",
+        "es": "Adaptador ha sido migrado a la organización de ibroker-community-adapters\nAdaptador requiere node.js ю= 20, js-controller √= 6.0.11 y admin= 7.6.17 ahora\nSe han actualizado las dependencias",
+        "pl": "Adapter został przeniesiony do organizacji adapterów społeczności iobrokerowej\nAdapter wymaga node.js > = 20, kontroler js- i admin > = 7.6.17\nZaktualizowano zależności",
+        "uk": "Перехідник мігрований до організації iobroker-community-adapters\nАдаптер вимагає node.js >= 20, js-controller >= 6.0.11 і admin >= 7.6.17 тепер\nЗалежність було оновлено",
+        "zh-cn": "适应者已迁移到职业经纪人-社区适应者组织\n适配器需要节点.js >= 20,js控制器 >= 6.0.11和admin >= 7.6.17 现在\n依赖关系已更新"
+      },
+      "1.3.3": {
+        "en": "Updated version of the package eufy-security-client (3.1.1)\n",
+        "uk": "Updated version of the package eufy-security-client (3.1.1)\n",
+        "de": "Version des Pakets eufy-security-client (3.1.1) aktualisiert\n",
+        "ru": "Обновленная версия пакета eufy-security-client (3.1.1)\n",
+        "pt": "Versão atualizada do pacote eufy-security-client (3.1.1)\n",
+        "nl": "Bijgewerkte versie van het pakket eufy-security-client (3.1.1)\n",
+        "fr": "Version mise à jour du paquet eufy-security-client (3.1.1)\n",
+        "it": "Aggiornata la versione del pacchetto eufy-security-client (3.1.1)\n",
+        "es": "Versión actualizada del paquete eufy-security-client (3.1.1)\n",
+        "pl": "Zaktualizowana wersja pakietu eufy-security-client (3.1.1)\n",
+        "zh-cn": "包 eufy-security-client (3.1.1) 的更新版本\n"
+      },
+      "1.3.2": {
+        "en": "Fixed issue #440\n",
+        "uk": "Fixed issue #440\n",
+        "de": "Problem #440 behoben\n",
+        "ru": "Исправлена проблема #440\n",
+        "pt": "Corrigido o problema #440\n",
+        "nl": "Probleem #440 opgelost\n",
+        "fr": "Correction du problème #440\n",
+        "it": "Risolto il problema #440\n",
+        "es": "Solucionado el problema #440\n",
+        "pl": "Naprawiono błąd #440\n",
+        "zh-cn": "修正問題 #440\n"
+      },
+      "1.3.1": {
+        "en": "Fixed issues #436, #439\n",
+        "uk": "Fixed issues #436, #439\n",
+        "de": "Behobene Probleme #436, #439\n",
+        "ru": "Исправлены проблемы #436, #439\n",
+        "pt": "Problemas corrigidos #436, #439\n",
+        "nl": "Problemen opgelost #436, #439\n",
+        "fr": "Correction des problèmes #436, #439\n",
+        "it": "Risolti i problemi #436, #439\n",
+        "es": "Solucionados los problemas #436, #439\n",
+        "pl": "Naprawiono błędy #436, #439\n",
+        "zh-cn": "修正問題 #436、#439\n"
+      }
     },
-    "encryptedNative": [
-        "password",
-        "go2rtc_rtsp_password"
-    ],
-    "protectedNative": [
-        "password",
-        "go2rtc_rtsp_password"
-    ],
-    "native": {
-        "username": "",
-        "password": "",
-        "country": "iobroker",
-        "pollingInterval": 10,
-        "maxLivestreamDuration": 120,
-        "verificationMethod": 2,
-        "eventDuration": 15,
-        "p2pConnectionType": "quickest",
-        "acceptInvitations": true,
-        "alarmSoundDuration": 60,
-        "go2rtc_api_port": 1984,
-        "go2rtc_rtsp_port": 8554,
-        "go2rtc_srtp_port": 8443,
-        "go2rtc_webrtc_port": 8555,
-        "go2rtc_rtsp_username": "",
-        "go2rtc_rtsp_password": "",
-        "hostname": "",
-        "https": false
+    "titleLang": {
+      "en": "euSec",
+      "uk": "euSec",
+      "de": "euSec",
+      "ru": "euSec",
+      "pt": "euSec",
+      "nl": "euSec",
+      "fr": "euSec",
+      "it": "euSec",
+      "es": "euSec",
+      "pl": "euSec",
+      "zh-cn": "euSec"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "",
-            "type": "meta",
-            "common": {
-                "name": {
-                    "en": "File storage for euSec",
-                    "de": "Dateiablage für euSec",
-                    "ru": "Файловое хранилище для euSec",
-                    "pt": "Armazenamento de arquivos para a euSec",
-                    "nl": "Bestandsopslag voor euSec",
-                    "fr": "Stockage de fichiers",
-                    "it": "Archiviazione dei file per euSec",
-                    "es": "Almacenamiento de archivos para euSec",
-                    "pl": "Przechowywanie plików dla euSec",
-                    "uk": "Зберігання файлів для euSec",
-                    "zh-cn": "euSec 的文件存储"
-                },
-                "type": "meta.user"
-            },
-            "native": {}
-        }
-    ]
+    "desc": {
+      "en": "Support for Eufy-Security cameras with stations",
+      "uk": "Support for Eufy-Security cameras with stations",
+      "de": "Unterstützung für Eufy-Security-Kameras mit Stationen",
+      "ru": "Поддержка камер Eufy-Security со станциями",
+      "pt": "Suporte para câmeras de segurança Eufy com estações",
+      "nl": "Ondersteuning voor Eufy-Security-camera's met stations",
+      "fr": "Prise en charge des caméras Eufy-Security avec stations",
+      "it": "Supporto per telecamere Eufy-Security con stazioni",
+      "es": "Soporte para cámaras Eufy-Security con estaciones",
+      "pl": "Wsparcie dla kamer Eufy-Security ze stacjami",
+      "zh-cn": "支持带站的Eufy-Security摄像机"
+    },
+    "authors": [
+      "bropat <patrick.broetto@gmail.com>",
+      "iobroker-community-adapters <iobroker-community-adapters@gmx.de>",
+      "mcm1957 <mcm57@gmx.at>"
+    ],
+    "keywords": [
+      "eufy",
+      "eufycam",
+      "cam",
+      "cameras",
+      "security",
+      "doorbell",
+      "eufy-security"
+    ],
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
+    "platform": "Javascript/Node.js",
+    "icon": "eusec.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/iobroker-community-adapters/ioBroker.eusec/master/admin/eusec.png",
+    "readme": "https://github.com/iobroker-community-adapters/ioBroker.eusec/blob/master/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "alarm",
+    "compact": false,
+    "connectionType": "cloud",
+    "dataSource": "poll",
+    "tier": 2,
+    "messagebox": true,
+    "stopBeforeUpdate": true,
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.7.22"
+      }
+    ],
+    "dataFolder": "eusec.%INSTANCE%",
+    "adminUI": {
+      "config": "json"
+    }
+  },
+  "encryptedNative": [
+    "password",
+    "go2rtc_rtsp_password"
+  ],
+  "protectedNative": [
+    "password",
+    "go2rtc_rtsp_password"
+  ],
+  "native": {
+    "username": "",
+    "password": "",
+    "country": "iobroker",
+    "pollingInterval": 10,
+    "maxLivestreamDuration": 120,
+    "verificationMethod": 2,
+    "eventDuration": 15,
+    "p2pConnectionType": "quickest",
+    "acceptInvitations": true,
+    "alarmSoundDuration": 60,
+    "go2rtc_api_port": 1984,
+    "go2rtc_rtsp_port": 8554,
+    "go2rtc_srtp_port": 8443,
+    "go2rtc_webrtc_port": 8555,
+    "go2rtc_rtsp_username": "",
+    "go2rtc_rtsp_password": "",
+    "hostname": "",
+    "https": false
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "",
+      "type": "meta",
+      "common": {
+        "name": {
+          "en": "File storage for euSec",
+          "de": "Dateiablage für euSec",
+          "ru": "Файловое хранилище для euSec",
+          "pt": "Armazenamento de arquivos para a euSec",
+          "nl": "Bestandsopslag voor euSec",
+          "fr": "Stockage de fichiers",
+          "it": "Archiviazione dei file per euSec",
+          "es": "Almacenamiento de archivos para euSec",
+          "pl": "Przechowywanie plików dla euSec",
+          "uk": "Зберігання файлів для euSec",
+          "zh-cn": "euSec 的文件存储"
+        },
+        "type": "meta.user"
+      },
+      "native": {}
+    }
+  ]
 }
