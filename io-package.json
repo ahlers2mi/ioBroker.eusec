@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "eusec",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "news": {
+      "2.0.4": {
+        "en": "Use eufy-security-client 4.0.0 with auto-detected geometry for v2_eufysecurity event thumbnails (fixes sheared/colour-corrupted images and .undefined file extension)",
+        "de": "Nutzt eufy-security-client 4.0.0 mit automatischer Geometrie-Erkennung für v2_eufysecurity-Ereignis-Thumbnails (behebt verzerrte/farbverfälschte Bilder und .undefined-Dateiendung)",
+        "ru": "Использует eufy-security-client 4.0.0 с автоопределением геометрии для миниатюр событий v2_eufysecurity (исправляет искажённые изображения и расширение .undefined)",
+        "pt": "Usa eufy-security-client 4.0.0 com geometria detetada automaticamente para miniaturas de eventos v2_eufysecurity (corrige imagens distorcidas e extensão .undefined)",
+        "nl": "Gebruikt eufy-security-client 4.0.0 met automatisch gedetecteerde geometrie voor v2_eufysecurity-gebeurtenisthumbnails (lost vervormde afbeeldingen en .undefined-extensie op)",
+        "fr": "Utilise eufy-security-client 4.0.0 avec géométrie détectée automatiquement pour les vignettes d'événements v2_eufysecurity (corrige les images déformées et l'extension .undefined)",
+        "it": "Usa eufy-security-client 4.0.0 con geometria rilevata automaticamente per le miniature degli eventi v2_eufysecurity (corregge immagini distorte ed estensione .undefined)",
+        "es": "Usa eufy-security-client 4.0.0 con geometría detectada automáticamente para las miniaturas de eventos v2_eufysecurity (corrige imágenes distorsionadas y la extensión .undefined)",
+        "pl": "Używa eufy-security-client 4.0.0 z automatycznie wykrywaną geometrią miniatur zdarzeń v2_eufysecurity (naprawia zniekształcone obrazy i rozszerzenie .undefined)",
+        "uk": "Використовує eufy-security-client 4.0.0 з автоматичним визначенням геометрії для мініатюр подій v2_eufysecurity (виправляє спотворені зображення та розширення .undefined)",
+        "zh-cn": "使用 eufy-security-client 4.0.0，自动检测 v2_eufysecurity 事件缩略图的几何参数（修复图像变形和 .undefined 文件扩展名问题）"
+      },
       "2.0.3": {
         "en": "Remove fix for CVE-2023-46809 for node.js 22 and newer",
         "de": "Entfernen Sie Fix für CVE-2023-46809 für node.js 22 und neuer",
