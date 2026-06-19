@@ -55,6 +55,9 @@ Adapter 2.0.3 and newer support node.js 22. Prior node.js version require a spec
 - (copilot) Adapter requires node.js >= 22 now
 - (copilot) Adapter requires admin >= 7.7.22 now
 
+### 2.0.4 (2026-06-19)
+- (ahlers2mi) Use eufy-security-client 4.0.0 with auto-detected geometry for v2_eufysecurity event thumbnails (fixes sheared/colour-corrupted images and .undefined file extension)
+
 ### 2.0.3 (2025-10-26)
 - (mcm1957) Remove fix for CVE-2023-46809 for node.js 22 and newer
 
