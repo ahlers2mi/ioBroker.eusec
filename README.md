@@ -37,12 +37,12 @@ Information about supported devices can be found [here](https://github.com/bropa
 
 This adapter would not have been possible without the great work of Patrick Broetto (brobat) <https://github.com/bropat>, who created previous releases of this adapter.
 
-## IMPORTANT information when upgrading to node.js 22
+## IMPORTANT information when upgrading to node.js 24
 
-Adapter 2.0.3 and newer support node.js 22. Prior node.js version require a special setup which became invalid with node.js 22. So when upgrading node.js form any version lower then 22.x.x to node.js 22 please follow these steps:
+Adapter 2.0.3 and newer support node.js 24. Prior node.js version require a special setup which became invalid with node.js 24. So when upgrading node.js form any version lower then 24.x.x to node.js 24 please follow these steps:
 
-- If you have node.js < 22 and adapter < 2.0.0 installed, please update node.js first and install adapter 2.0.3 afterwards.
-- If you have adapter >= 2.0.0 installed with any node release prio than 22 you MUST reinstall the adapter. A detailled description (in german) is available at our forum (https://forum.iobroker.net/topic/82651/test-adapter-eusec-v2-0-x)
+- If you have node.js < 24 and adapter < 2.0.0 installed, please update node.js first and install adapter 2.0.3 afterwards.
+- If you have adapter >= 2.0.0 installed with any node release prio than 24 you MUST reinstall the adapter. A detailled description (in german) is available at our forum (https://forum.iobroker.net/topic/82651/test-adapter-eusec-v2-0-x)
   
 ## Changelog
 
@@ -52,7 +52,7 @@ Adapter 2.0.3 and newer support node.js 22. Prior node.js version require a spec
 -->
 
 ### **WORK IN PROGRESS**
-- (copilot) Adapter requires node.js >= 22 now
+- (copilot) Adapter requires node.js >= 24 now
 - (copilot) Adapter requires admin >= 7.7.22 now
 
 ### 2.0.4 (2026-06-19)
