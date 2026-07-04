@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "eusec",
-    "version": "2.0.4",
+    "version": "2.1.0",
     "news": {
+      "2.1.0": {
+        "en": "Updated eufy-security-client to 4.1.1 (eufy_mega v6 transport + FCM push registration, v2 thumbnail geometry auto-detection); adapter requires node.js >= 24 and admin >= 7.7.22 now",
+        "de": "eufy-security-client auf 4.1.1 aktualisiert (eufy_mega v6-Transport + FCM-Push-Registrierung, v2-Thumbnail-Geometrieerkennung); Adapter benötigt jetzt node.js >= 24 und admin >= 7.7.22",
+        "ru": "Обновлён eufy-security-client до 4.1.1 (транспорт eufy_mega v6 + регистрация FCM push, автоопределение геометрии миниатюр v2); адаптер теперь требует node.js >= 24 и admin >= 7.7.22",
+        "pt": "eufy-security-client atualizado para 4.1.1 (transporte eufy_mega v6 + registo push FCM, deteção de geometria de miniaturas v2); o adaptador requer agora node.js >= 24 e admin >= 7.7.22",
+        "nl": "eufy-security-client bijgewerkt naar 4.1.1 (eufy_mega v6-transport + FCM push-registratie, v2-thumbnailgeometriedetectie); adapter vereist nu node.js >= 24 en admin >= 7.7.22",
+        "fr": "eufy-security-client mis à jour vers 4.1.1 (transport eufy_mega v6 + enregistrement push FCM, détection de la géométrie des vignettes v2) ; l'adaptateur nécessite désormais node.js >= 24 et admin >= 7.7.22",
+        "it": "eufy-security-client aggiornato a 4.1.1 (trasporto eufy_mega v6 + registrazione push FCM, rilevamento geometria miniature v2); l'adattatore richiede ora node.js >= 24 e admin >= 7.7.22",
+        "es": "eufy-security-client actualizado a 4.1.1 (transporte eufy_mega v6 + registro push FCM, detección de geometría de miniaturas v2); el adaptador requiere ahora node.js >= 24 y admin >= 7.7.22",
+        "pl": "Zaktualizowano eufy-security-client do 4.1.1 (transport eufy_mega v6 + rejestracja push FCM, wykrywanie geometrii miniatur v2); adapter wymaga teraz node.js >= 24 i admin >= 7.7.22",
+        "uk": "Оновлено eufy-security-client до 4.1.1 (транспорт eufy_mega v6 + реєстрація FCM push, автовизначення геометрії мініатюр v2); адаптер тепер потребує node.js >= 24 та admin >= 7.7.22",
+        "zh-cn": "将 eufy-security-client 更新至 4.1.1（eufy_mega v6 传输 + FCM 推送注册、v2 缩略图几何自动检测）；适配器现在需要 node.js >= 24 和 admin >= 7.7.22"
+      },
       "2.0.4": {
         "en": "Use eufy-security-client 4.0.0 with auto-detected geometry for v2_eufysecurity event thumbnails (fixes sheared/colour-corrupted images and .undefined file extension)",
         "de": "Nutzt eufy-security-client 4.0.0 mit automatischer Geometrie-Erkennung für v2_eufysecurity-Ereignis-Thumbnails (behebt verzerrte/farbverfälschte Bilder und .undefined-Dateiendung)",
