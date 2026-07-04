@@ -51,7 +51,8 @@ Adapter 2.0.3 and newer support node.js 24. Prior node.js version require a spec
 	### **WORK IN PROGRESS**
 -->
 
-### **WORK IN PROGRESS**
+### 2.1.0 (2026-07-04)
+- (ahlers2mi) Updated eufy-security-client to 4.1.1 (eufy_mega v6 transport + FCM push registration, v2 thumbnail geometry auto-detection)
 - (copilot) Adapter requires node.js >= 24 now
 - (copilot) Adapter requires admin >= 7.7.22 now
 
