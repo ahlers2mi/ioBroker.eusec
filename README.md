@@ -51,6 +51,9 @@ Adapter 2.0.3 and newer support node.js 24. Prior node.js version require a spec
 	### **WORK IN PROGRESS**
 -->
 
+### 2.1.1 (2026-07-06)
+- (ahlers2mi) Fixed adapter start ("Cannot find module eufy-security-client/build/index.js"): the eufy-security-client git dependency now builds automatically on installation
+
 ### 2.1.0 (2026-07-04)
 - (ahlers2mi) Updated eufy-security-client to 4.1.1 (eufy_mega v6 transport + FCM push registration, v2 thumbnail geometry auto-detection)
 - (copilot) Adapter requires node.js >= 24 now
