@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "eusec",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "news": {
+      "2.1.1": {
+        "en": "Fixed adapter start (Cannot find module eufy-security-client/build/index.js): the eufy-security-client git dependency now builds automatically on installation",
+        "de": "Adapter-Start korrigiert (Cannot find module eufy-security-client/build/index.js): die eufy-security-client-Git-Abhängigkeit wird jetzt bei der Installation automatisch gebaut",
+        "ru": "Исправлен запуск адаптера (Cannot find module eufy-security-client/build/index.js): git-зависимость eufy-security-client теперь собирается автоматически при установке",
+        "pt": "Corrigido o arranque do adaptador (Cannot find module eufy-security-client/build/index.js): a dependência git eufy-security-client é agora compilada automaticamente na instalação",
+        "nl": "Adapterstart gerepareerd (Cannot find module eufy-security-client/build/index.js): de eufy-security-client git-afhankelijkheid wordt nu automatisch gebouwd bij installatie",
+        "fr": "Démarrage de l'adaptateur corrigé (Cannot find module eufy-security-client/build/index.js) : la dépendance git eufy-security-client est désormais compilée automatiquement lors de l'installation",
+        "it": "Corretto l'avvio dell'adattatore (Cannot find module eufy-security-client/build/index.js): la dipendenza git eufy-security-client ora viene compilata automaticamente durante l'installazione",
+        "es": "Corregido el inicio del adaptador (Cannot find module eufy-security-client/build/index.js): la dependencia git eufy-security-client ahora se compila automáticamente durante la instalación",
+        "pl": "Naprawiono uruchamianie adaptera (Cannot find module eufy-security-client/build/index.js): zależność git eufy-security-client jest teraz budowana automatycznie podczas instalacji",
+        "uk": "Виправлено запуск адаптера (Cannot find module eufy-security-client/build/index.js): git-залежність eufy-security-client тепер збирається автоматично під час встановлення",
+        "zh-cn": "修复适配器启动问题（找不到模块 eufy-security-client/build/index.js）：eufy-security-client git 依赖现在会在安装时自动构建"
+      },
       "2.1.0": {
         "en": "Updated eufy-security-client to 4.1.1 (eufy_mega v6 transport + FCM push registration, v2 thumbnail geometry auto-detection); adapter requires node.js >= 24 and admin >= 7.7.22 now",
         "de": "eufy-security-client auf 4.1.1 aktualisiert (eufy_mega v6-Transport + FCM-Push-Registrierung, v2-Thumbnail-Geometrieerkennung); Adapter benötigt jetzt node.js >= 24 und admin >= 7.7.22",
