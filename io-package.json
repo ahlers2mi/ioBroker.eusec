@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "eusec",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "news": {
+      "2.1.2": {
+        "en": "Updated eufy-security-client with a P2P fix: a stalled connection setup no longer blocks reconnect, so a dropped station reconnects automatically instead of commands timing out with ERROR_CONNECT_TIMEOUT (-134) until an adapter restart",
+        "de": "eufy-security-client mit P2P-Fix aktualisiert: ein hängender Verbindungsaufbau blockiert den Reconnect nicht mehr, sodass eine abgebrochene Station sich automatisch neu verbindet, statt dass Befehle mit ERROR_CONNECT_TIMEOUT (-134) bis zu einem Adapter-Neustart auslaufen",
+        "ru": "Обновлён eufy-security-client с исправлением P2P: зависшая установка соединения больше не блокирует переподключение, поэтому отключившаяся станция подключается автоматически, а не команды завершаются с ERROR_CONNECT_TIMEOUT (-134) до перезапуска адаптера",
+        "pt": "eufy-security-client atualizado com uma correção P2P: uma configuração de ligação bloqueada já não impede a reconexão, pelo que uma estação que caiu volta a ligar-se automaticamente em vez de os comandos expirarem com ERROR_CONNECT_TIMEOUT (-134) até reiniciar o adaptador",
+        "nl": "eufy-security-client bijgewerkt met een P2P-fix: een vastgelopen verbindingsopbouw blokkeert de herverbinding niet meer, zodat een weggevallen station automatisch opnieuw verbindt in plaats van dat commando's verlopen met ERROR_CONNECT_TIMEOUT (-134) tot een adapter-herstart",
+        "fr": "eufy-security-client mis à jour avec un correctif P2P : une configuration de connexion bloquée n'empêche plus la reconnexion, de sorte qu'une station déconnectée se reconnecte automatiquement au lieu que les commandes expirent avec ERROR_CONNECT_TIMEOUT (-134) jusqu'au redémarrage de l'adaptateur",
+        "it": "eufy-security-client aggiornato con una correzione P2P: una configurazione di connessione bloccata non impedisce più la riconnessione, quindi una stazione disconnessa si riconnette automaticamente invece che i comandi scadano con ERROR_CONNECT_TIMEOUT (-134) fino al riavvio dell'adattatore",
+        "es": "eufy-security-client actualizado con una corrección P2P: una configuración de conexión bloqueada ya no impide la reconexión, por lo que una estación caída se reconecta automáticamente en lugar de que los comandos expiren con ERROR_CONNECT_TIMEOUT (-134) hasta reiniciar el adaptador",
+        "pl": "Zaktualizowano eufy-security-client o poprawkę P2P: zablokowane nawiązywanie połączenia nie blokuje już ponownego łączenia, więc rozłączona stacja łączy się ponownie automatycznie, zamiast żeby polecenia wygasały z ERROR_CONNECT_TIMEOUT (-134) do czasu ponownego uruchomienia adaptera",
+        "uk": "Оновлено eufy-security-client з виправленням P2P: зависле встановлення з'єднання більше не блокує повторне підключення, тож відключена станція підключається автоматично, а не команди завершуються з ERROR_CONNECT_TIMEOUT (-134) до перезапуску адаптера",
+        "zh-cn": "更新 eufy-security-client 并修复 P2P：连接建立卡住不再阻止重连，断开的基站会自动重新连接，而不是命令一直以 ERROR_CONNECT_TIMEOUT (-134) 超时直到重启适配器"
+      },
       "2.1.1": {
         "en": "Fixed adapter start (Cannot find module eufy-security-client/build/index.js): the eufy-security-client git dependency now builds automatically on installation",
         "de": "Adapter-Start korrigiert (Cannot find module eufy-security-client/build/index.js): die eufy-security-client-Git-Abhängigkeit wird jetzt bei der Installation automatisch gebaut",
