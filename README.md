@@ -51,6 +51,9 @@ Adapter 2.0.3 and newer support node.js 24. Prior node.js version require a spec
 	### **WORK IN PROGRESS**
 -->
 
+### 2.1.2 (2026-08-03)
+- (ahlers2mi) Updated eufy-security-client with a P2P fix: a stalled connection setup no longer blocks automatic reconnect, so a dropped station reconnects on its own instead of leaving commands to time out with ERROR_CONNECT_TIMEOUT (-134) until an adapter restart
+
 ### 2.1.1 (2026-07-06)
 - (ahlers2mi) Fixed adapter start ("Cannot find module eufy-security-client/build/index.js"): the eufy-security-client git dependency now builds automatically on installation
 
