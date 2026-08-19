@@ -1086,6 +1086,28 @@
             "lg": 3,
             "xl": 3
           },
+          "pictureStartupGrace": {
+            "type": "number",
+            "min": 0,
+            "max": 900,
+            "label": "Ignore camera pictures for x seconds after adapter start (0 = off)",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3,
+            "xl": 3
+          },
+          "pictureMinInterval": {
+            "type": "number",
+            "min": 0,
+            "max": 600,
+            "label": "Minimum time in seconds between two camera pictures (0 = off)",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3,
+            "xl": 3
+          },
           "alarmSoundDuration": {
             "type": "number",
             "min": 1,

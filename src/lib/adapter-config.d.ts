@@ -10,6 +10,8 @@ declare global {
             pollingInterval: number;
             maxLivestreamDuration: number;
             eventDuration: number;
+            pictureStartupGrace: number;
+            pictureMinInterval: number;
             verificationMethod: number;
             p2pConnectionType: string;
             acceptInvitations: boolean;

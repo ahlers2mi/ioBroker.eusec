@@ -33,6 +33,7 @@ __export(main_exports, {
 module.exports = __toCommonJS(main_exports);
 var utils = __toESM(require("@iobroker/adapter-core"));
 var path = __toESM(require("node:path"));
+var import_node_crypto = require("node:crypto");
 var import_eufy_security_client = require("eufy-security-client");
 var import_i18n_iso_countries = require("i18n-iso-countries");
 var import_i18n_iso_languages = require("@cospired/i18n-iso-languages");
@@ -58,6 +59,20 @@ class euSec extends utils.Adapter {
   captchaId = null;
   verify_code = false;
   skipInit = false;
+  /*
+   * Bilder kommen auch dann, wenn gerade nichts passiert ist: Station.onConnect()
+   * der Bibliothek fragt per P2P die letzten Ereignisse ab
+   * (databaseQueryLatestInfo), woraufhin fuer JEDE Kamera das Bild ihres letzten -
+   * womoeglich Tage alten - Ereignisses geladen wird. Nach einem Adapterstart
+   * melden sich so alle Kameras auf einmal mit alten Bildern. Ausserdem liefert ein
+   * einzelnes Ereignis zwei Bilder: erst das Push-Vorschaubild aus der Cloud,
+   * Sekunden spaeter den P2P-Ausschnitt.
+   * Beides faengt suppressPictureStates() ab, bevor picture_url/picture_html
+   * geschrieben und damit z. B. per MQTT weitergereicht werden. Die Bilddatei
+   * selbst wird immer geschrieben.
+   */
+  pictureGraceUntil = 0;
+  lastPicture = /* @__PURE__ */ new Map();
   constructor(options = {}) {
     super({
       ...options,
@@ -277,6 +292,8 @@ class euSec extends utils.Adapter {
             level: this.log.level === "silly" ? import_eufy_security_client.LogLevel.Trace : this.log.level === "debug" ? import_eufy_security_client.LogLevel.Debug : this.log.level === "info" ? import_eufy_security_client.LogLevel.Info : this.log.level === "warn" ? import_eufy_security_client.LogLevel.Warn : this.log.level === "error" ? import_eufy_security_client.LogLevel.Error : import_eufy_security_client.LogLevel.Info
           }
         };
+        const grace = this.config.pictureStartupGrace ?? 90;
+        this.pictureGraceUntil = grace > 0 ? Date.now() + grace * 1e3 : 0;
         this.eufy = await import_eufy_security_client.EufySecurity.initialize(config, this.logger);
         this.eufy.on("persistent data", (data) => this.onPersistentData(data));
         this.eufy.on("station added", (station) => this.onStationAdded(station));
@@ -1425,6 +1442,40 @@ class euSec extends utils.Adapter {
     }
     this.logger.debug(`onStationPropertyChanged(): Property "${name}" not implemented in this adapter (station: ${station.getSerial()} value: ${JSON.stringify(value)})`);
   }
+  /**
+   * Entscheidet, ob fuer ein neues Kamerabild picture_url/picture_html
+   * geschrieben werden. Rueckgabe undefined = schreiben, sonst der Grund fuer
+   * das Auslassen (fuers Log).
+   *
+   * Drei Faelle werden ausgelassen:
+   *   - Startphase: die Bibliothek holt beim ersten P2P-Connect die Bilder der
+   *     letzten Ereignisse aller Kameras nach, die sind alt.
+   *   - gleiches Bild: Bild-Inhalt identisch mit dem zuletzt gemeldeten.
+   *   - Nachschlag: ein Ereignis liefert erst das Cloud-Vorschaubild und
+   *     Sekunden spaeter den P2P-Ausschnitt; das zweite faellt weg.
+   */
+  suppressPictureStates(device, picture) {
+    const now = Date.now();
+    const serial = device.getSerial();
+    const hash = (0, import_node_crypto.createHash)("sha1").update(picture.data).digest("hex");
+    const previous = this.lastPicture.get(serial);
+    if (this.pictureGraceUntil > now) {
+      this.lastPicture.set(serial, { hash, time: now });
+      return `startup grace period, ${Math.round((this.pictureGraceUntil - now) / 1e3)}s left`;
+    }
+    if (previous !== void 0) {
+      if (previous.hash === hash) {
+        return "same picture as before";
+      }
+      const configured = this.config.pictureMinInterval ?? 10;
+      const minInterval = configured * 1e3;
+      if (minInterval > 0 && now - previous.time < minInterval) {
+        return `previous picture published ${Math.round((now - previous.time) / 1e3)}s ago, minimum interval is ${configured}s`;
+      }
+    }
+    this.lastPicture.set(serial, { hash, time: now });
+    return void 0;
+  }
   async onDevicePropertyChanged(device, name, value) {
     const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
     for (const state in states) {
@@ -1452,6 +1503,11 @@ class euSec extends utils.Adapter {
           await this.mkdirAsync(this.namespace, filePath);
         }
         await this.writeFileAsync(this.namespace, path.join(filePath, fileName), picture.data);
+        const suppressed = this.suppressPictureStates(device, picture);
+        if (suppressed !== void 0) {
+          this.logger.debug(`onDevicePropertyChanged - Property picture - ${device.getSerial()}: file written, states left untouched (${suppressed})`);
+          return;
+        }
         await this.setStateAsync(device.getStateID(import_types.DeviceStateID.PICTURE_URL), `/files/${this.namespace}/${device.getStationSerial()}/${import_types.DataLocation.LAST_EVENT}/${device.getSerial()}.${picture.type.ext}`, true);
         await (0, import_utils.setStateChangedAsync)(this, device.getStateID(import_types.DeviceStateID.PICTURE_HTML), (0, import_utils.getImageAsHTML)(picture.data, picture.type.mime));
       } catch (err) {
