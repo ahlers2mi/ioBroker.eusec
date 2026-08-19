@@ -6,6 +6,8 @@
     "Other settings": "Другие настройки",
     "Polling interval (min)": "Интервал опроса (мин)",
     "Time in seconds before event reset": "Время в секундах до сброса события",
+    "Ignore camera pictures for x seconds after adapter start (0 = off)": "Игнорировать изображения с камеры в течение x секунд после запуска адаптера (0 = выкл.)",
+    "Minimum time in seconds between two camera pictures (0 = off)": "Минимальный интервал в секундах между двумя изображениями с камеры (0 = выкл.)",
     "P2P connection type": "Тип подключения P2P",
     "Only local connection": "Только локальное подключение",
     "Quickest connection": "Самое быстрое соединение",

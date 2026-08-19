@@ -51,6 +51,10 @@ Adapter 2.0.3 and newer support node.js 24. Prior node.js version require a spec
 	### **WORK IN PROGRESS**
 -->
 
+### 2.1.3 (2026-08-19)
+- (ahlers2mi) Camera pictures: an adapter start no longer publishes the last - possibly days old - picture of every camera at once, and a single event no longer produces two pictures (the cloud preview and, seconds later, the P2P crop). New settings "Ignore camera pictures for x seconds after adapter start" and "Minimum time in seconds between two camera pictures"; the picture file is always written, only the states are held back
+- (ahlers2mi) Updated eufy-security-client: the ids of received push messages are persisted again, so FCM stops redelivering messages that were already handled after a restart
+
 ### 2.1.2 (2026-08-03)
 - (ahlers2mi) Updated eufy-security-client with a P2P fix: a stalled connection setup no longer blocks automatic reconnect, so a dropped station reconnects on its own instead of leaving commands to time out with ERROR_CONNECT_TIMEOUT (-134) until an adapter restart
 

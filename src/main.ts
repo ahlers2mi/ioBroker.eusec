@@ -8,6 +8,7 @@ import * as utils from "@iobroker/adapter-core";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { strict } from "node:assert";
 import * as path from "node:path";
+import { createHash } from "node:crypto";
 import { Camera, Device, Station, PushMessage, P2PConnectionType, EufySecurity, EufySecurityConfig, CommandResult, CommandType, ErrorCode, PropertyValue, PropertyName, StreamMetadata, PropertyMetadataNumeric, PropertyMetadataAny, CommandName, PanTiltDirection, DeviceNotFoundError, LoginOptions, Picture, StationNotFoundError, ensureError, LogLevel, TFCardStatus } from "eufy-security-client";
 import { getAlpha2Code as getCountryCode } from "i18n-iso-countries"
 import { isValid as isValidLanguageCode } from "@cospired/i18n-iso-languages"
@@ -39,6 +40,20 @@ export class euSec extends utils.Adapter {
     private captchaId: string | null = null;
     private verify_code = false;
     private skipInit = false;
+    /*
+     * Bilder kommen auch dann, wenn gerade nichts passiert ist: Station.onConnect()
+     * der Bibliothek fragt per P2P die letzten Ereignisse ab
+     * (databaseQueryLatestInfo), woraufhin fuer JEDE Kamera das Bild ihres letzten -
+     * womoeglich Tage alten - Ereignisses geladen wird. Nach einem Adapterstart
+     * melden sich so alle Kameras auf einmal mit alten Bildern. Ausserdem liefert ein
+     * einzelnes Ereignis zwei Bilder: erst das Push-Vorschaubild aus der Cloud,
+     * Sekunden spaeter den P2P-Ausschnitt.
+     * Beides faengt suppressPictureStates() ab, bevor picture_url/picture_html
+     * geschrieben und damit z. B. per MQTT weitergereicht werden. Die Bilddatei
+     * selbst wird immer geschrieben.
+     */
+    private pictureGraceUntil = 0;
+    private lastPicture = new Map<string, { hash: string; time: number }>();
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
@@ -282,6 +297,11 @@ export class euSec extends utils.Adapter {
                         level: this.log.level === "silly" ? LogLevel.Trace : this.log.level === "debug" ? LogLevel.Debug : this.log.level === "info" ? LogLevel.Info : this.log.level === "warn" ? LogLevel.Warn : this.log.level === "error" ? LogLevel.Error : LogLevel.Info
                     }
                 };
+
+                // Startphase: siehe suppressPictureStates(). Bestandsinstallationen
+                // haben den Wert noch nicht in der Konfiguration, darum der Vorgabewert.
+                const grace = this.config.pictureStartupGrace ?? 90;
+                this.pictureGraceUntil = grace > 0 ? Date.now() + grace * 1000 : 0;
 
                 this.eufy = await EufySecurity.initialize(config, this.logger);
                 this.eufy.on("persistent data", (data: string) => this.onPersistentData(data))
@@ -1581,6 +1601,48 @@ export class euSec extends utils.Adapter {
         this.logger.debug(`onStationPropertyChanged(): Property "${name}" not implemented in this adapter (station: ${station.getSerial()} value: ${JSON.stringify(value)})`);
     }
 
+    /**
+     * Entscheidet, ob fuer ein neues Kamerabild picture_url/picture_html
+     * geschrieben werden. Rueckgabe undefined = schreiben, sonst der Grund fuer
+     * das Auslassen (fuers Log).
+     *
+     * Drei Faelle werden ausgelassen:
+     *   - Startphase: die Bibliothek holt beim ersten P2P-Connect die Bilder der
+     *     letzten Ereignisse aller Kameras nach, die sind alt.
+     *   - gleiches Bild: Bild-Inhalt identisch mit dem zuletzt gemeldeten.
+     *   - Nachschlag: ein Ereignis liefert erst das Cloud-Vorschaubild und
+     *     Sekunden spaeter den P2P-Ausschnitt; das zweite faellt weg.
+     */
+    private suppressPictureStates(device: Device, picture: Picture): string | undefined {
+        const now = Date.now();
+        const serial = device.getSerial();
+        const hash = createHash("sha1").update(picture.data).digest("hex");
+        const previous = this.lastPicture.get(serial);
+
+        if (this.pictureGraceUntil > now) {
+            // Hash merken, damit ein direkt nach der Startphase noch einmal
+            // gemeldetes gleiches Bild ebenfalls stillbleibt.
+            this.lastPicture.set(serial, { hash: hash, time: now });
+            return `startup grace period, ${Math.round((this.pictureGraceUntil - now) / 1000)}s left`;
+        }
+
+        if (previous !== undefined) {
+            if (previous.hash === hash) {
+                return "same picture as before";
+            }
+            // Bestandsinstallationen haben den Wert noch nicht in der Konfiguration,
+            // darum derselbe Vorgabewert wie in der io-package.json.
+            const configured = this.config.pictureMinInterval ?? 10;
+            const minInterval = configured * 1000;
+            if (minInterval > 0 && now - previous.time < minInterval) {
+                return `previous picture published ${Math.round((now - previous.time) / 1000)}s ago, minimum interval is ${configured}s`;
+            }
+        }
+
+        this.lastPicture.set(serial, { hash: hash, time: now });
+        return undefined;
+    }
+
     private async onDevicePropertyChanged(device: Device, name: string, value: PropertyValue): Promise<void> {
         const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
         for (const state in states) {
@@ -1608,6 +1670,12 @@ export class euSec extends utils.Adapter {
                     await this.mkdirAsync(this.namespace, filePath);
                 }
                 await this.writeFileAsync(this.namespace, path.join(filePath, fileName), picture.data);
+
+                const suppressed = this.suppressPictureStates(device, picture);
+                if (suppressed !== undefined) {
+                    this.logger.debug(`onDevicePropertyChanged - Property picture - ${device.getSerial()}: file written, states left untouched (${suppressed})`);
+                    return;
+                }
 
                 await this.setStateAsync(device.getStateID(DeviceStateID.PICTURE_URL), `/files/${this.namespace}/${device.getStationSerial()}/${DataLocation.LAST_EVENT}/${device.getSerial()}.${picture.type.ext}`, true);
                 await setStateChangedAsync(this as unknown as ioBroker.Adapter, device.getStateID(DeviceStateID.PICTURE_HTML), getImageAsHTML(picture.data, picture.type.mime));

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "eusec",
-    "version": "2.1.2",
+    "version": "2.1.3",
     "news": {
+      "2.1.3": {
+        "en": "Camera pictures: no more burst of old pictures after an adapter start, and one event no longer produces two pictures. New settings for the startup grace period and the minimum interval between pictures; updated eufy-security-client so FCM stops redelivering push messages that were already handled",
+        "de": "Kamerabilder: nach einem Adapterstart kommen nicht mehr alle alten Bilder auf einmal, und ein Ereignis liefert nicht mehr zwei Bilder. Neue Einstellungen fuer die Startphase und den Mindestabstand zwischen Bildern; eufy-security-client aktualisiert, damit FCM bereits verarbeitete Push-Nachrichten nicht erneut zustellt",
+        "ru": "Изображения с камер: после запуска адаптера больше нет потока старых изображений, и одно событие больше не даёт два изображения. Новые настройки для стартовой паузы и минимального интервала между изображениями; обновлён eufy-security-client, чтобы FCM не доставлял повторно уже обработанные push-сообщения",
+        "pt": "Imagens das câmaras: já não chega um lote de imagens antigas após o arranque do adaptador e um evento já não produz duas imagens. Novas definições para o período de arranque e o intervalo mínimo entre imagens; eufy-security-client atualizado para que o FCM deixe de reentregar mensagens push já processadas",
+        "nl": "Camerabeelden: na een adapterstart komt er geen stroom oude beelden meer en levert één gebeurtenis niet langer twee beelden. Nieuwe instellingen voor de startperiode en de minimale tijd tussen beelden; eufy-security-client bijgewerkt zodat FCM al verwerkte pushberichten niet opnieuw aflevert",
+        "fr": "Images des caméras : plus de rafale d'anciennes images après un démarrage de l'adaptateur, et un événement ne produit plus deux images. Nouveaux réglages pour la période de démarrage et l'intervalle minimum entre images ; eufy-security-client mis à jour pour que FCM cesse de relivrer les messages push déjà traités",
+        "it": "Immagini delle telecamere: dopo l'avvio dell'adattatore non arriva più una raffica di immagini vecchie e un evento non produce più due immagini. Nuove impostazioni per la fase di avvio e l'intervallo minimo tra le immagini; eufy-security-client aggiornato affinché FCM non riconsegni i messaggi push già elaborati",
+        "es": "Imágenes de las cámaras: ya no llega una ráfaga de imágenes antiguas tras iniciar el adaptador y un evento ya no produce dos imágenes. Nuevos ajustes para el periodo de arranque y el intervalo mínimo entre imágenes; eufy-security-client actualizado para que FCM deje de reenviar mensajes push ya procesados",
+        "pl": "Obrazy z kamer: po uruchomieniu adaptera nie pojawia się już fala starych obrazów, a jedno zdarzenie nie daje już dwóch obrazów. Nowe ustawienia okresu startowego i minimalnego odstępu między obrazami; zaktualizowano eufy-security-client, aby FCM nie dostarczał ponownie już przetworzonych wiadomości push",
+        "uk": "Зображення з камер: після запуску адаптера більше немає потоку старих зображень, і одна подія більше не дає двох зображень. Нові налаштування стартового періоду та мінімального інтервалу між зображеннями; оновлено eufy-security-client, щоб FCM не доставляв повторно вже оброблені push-повідомлення",
+        "zh-cn": "摄像头图片：适配器启动后不再一次性收到大量旧图片，同一事件也不再产生两张图片。新增启动静默期和图片最短间隔设置；更新 eufy-security-client，使 FCM 不再重复投递已处理的推送消息"
+      },
       "2.1.2": {
         "en": "Updated eufy-security-client with a P2P fix: a stalled connection setup no longer blocks reconnect, so a dropped station reconnects automatically instead of commands timing out with ERROR_CONNECT_TIMEOUT (-134) until an adapter restart",
         "de": "eufy-security-client mit P2P-Fix aktualisiert: ein hängender Verbindungsaufbau blockiert den Reconnect nicht mehr, sodass eine abgebrochene Station sich automatisch neu verbindet, statt dass Befehle mit ERROR_CONNECT_TIMEOUT (-134) bis zu einem Adapter-Neustart auslaufen",
@@ -210,6 +223,8 @@
     "maxLivestreamDuration": 120,
     "verificationMethod": 2,
     "eventDuration": 15,
+    "pictureStartupGrace": 90,
+    "pictureMinInterval": 10,
     "p2pConnectionType": "quickest",
     "acceptInvitations": true,
     "alarmSoundDuration": 60,
