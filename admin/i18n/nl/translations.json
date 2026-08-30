@@ -8,6 +8,7 @@
     "Time in seconds before event reset": "Tijd in seconden voordat de gebeurtenis wordt gereset",
     "Ignore camera pictures for x seconds after adapter start (0 = off)": "Camerabeelden gedurende x seconden na de start van de adapter negeren (0 = uit)",
     "Minimum time in seconds between two camera pictures (0 = off)": "Minimale tijd in seconden tussen twee camerabeelden (0 = uit)",
+    "Only announce a camera picture within x seconds of a detection (0 = off)": "Camerabeeld alleen melden binnen x seconden na een detectie (0 = uit)",
     "P2P connection type": "P2P-verbindingstype",
     "Only local connection": "Alleen lokale verbinding",
     "Quickest connection": "Snelste verbinding",

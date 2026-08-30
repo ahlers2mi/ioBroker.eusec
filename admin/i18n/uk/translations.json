@@ -8,6 +8,7 @@
     "Time in seconds before event reset": "Час у секундах до скидання події",
     "Ignore camera pictures for x seconds after adapter start (0 = off)": "Ігнорувати зображення з камери протягом x секунд після запуску адаптера (0 = вимк.)",
     "Minimum time in seconds between two camera pictures (0 = off)": "Мінімальний інтервал у секундах між двома зображеннями з камери (0 = вимк.)",
+    "Only announce a camera picture within x seconds of a detection (0 = off)": "Повідомляти про зображення з камери лише протягом x секунд після виявлення (0 = вимк.)",
     "P2P connection type": "Тип з'єднання P2P",
     "Only local connection": "Тільки локальне підключення",
     "Quickest connection": "Найшвидше з'єднання",

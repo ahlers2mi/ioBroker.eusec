@@ -8,6 +8,7 @@
     "Time in seconds before event reset": "事件重置之前的时间（以秒为单位）",
     "Ignore camera pictures for x seconds after adapter start (0 = off)": "适配器启动后 x 秒内忽略摄像头图片（0 = 关闭）",
     "Minimum time in seconds between two camera pictures (0 = off)": "两张摄像头图片之间的最短间隔秒数（0 = 关闭）",
+    "Only announce a camera picture within x seconds of a detection (0 = off)": "仅在检测发生后 x 秒内通报摄像头图片（0 = 关闭）",
     "P2P connection type": "P2P连接类型",
     "Only local connection": "仅本地连接",
     "Quickest connection": "最快的连接",

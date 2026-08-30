@@ -12,6 +12,7 @@ declare global {
             eventDuration: number;
             pictureStartupGrace: number;
             pictureMinInterval: number;
+            pictureEventWindow: number;
             verificationMethod: number;
             p2pConnectionType: string;
             acceptInvitations: boolean;

@@ -63,8 +63,10 @@ class euSec extends utils.Adapter {
    * Bilder kommen auch dann, wenn gerade nichts passiert ist: Station.onConnect()
    * der Bibliothek fragt per P2P die letzten Ereignisse ab
    * (databaseQueryLatestInfo), woraufhin fuer JEDE Kamera das Bild ihres letzten -
-   * womoeglich Tage alten - Ereignisses geladen wird. Nach einem Adapterstart
-   * melden sich so alle Kameras auf einmal mit alten Bildern. Ausserdem liefert ein
+   * womoeglich Tage alten - Ereignisses geladen wird. Das passiert bei JEDEM
+   * Verbindungsaufbau: beim Adapterstart wie mitten im Betrieb, wenn die Station
+   * sich neu verbindet. Alle Kameras melden dann auf einmal alte Bilder.
+   * Ausserdem liefert ein
    * einzelnes Ereignis zwei Bilder: erst das Push-Vorschaubild aus der Cloud,
    * Sekunden spaeter den P2P-Ausschnitt.
    * Beides faengt suppressPictureStates() ab, bevor picture_url/picture_html
@@ -73,6 +75,7 @@ class euSec extends utils.Adapter {
    */
   pictureGraceUntil = 0;
   lastPicture = /* @__PURE__ */ new Map();
+  lastEvent = /* @__PURE__ */ new Map();
   constructor(options = {}) {
     super({
       ...options,
@@ -292,7 +295,7 @@ class euSec extends utils.Adapter {
             level: this.log.level === "silly" ? import_eufy_security_client.LogLevel.Trace : this.log.level === "debug" ? import_eufy_security_client.LogLevel.Debug : this.log.level === "info" ? import_eufy_security_client.LogLevel.Info : this.log.level === "warn" ? import_eufy_security_client.LogLevel.Warn : this.log.level === "error" ? import_eufy_security_client.LogLevel.Error : import_eufy_security_client.LogLevel.Info
           }
         };
-        const grace = this.config.pictureStartupGrace ?? 90;
+        const grace = this.config.pictureStartupGrace ?? 0;
         this.pictureGraceUntil = grace > 0 ? Date.now() + grace * 1e3 : 0;
         this.eufy = await import_eufy_security_client.EufySecurity.initialize(config, this.logger);
         this.eufy.on("persistent data", (data) => this.onPersistentData(data));
@@ -1447,9 +1450,13 @@ class euSec extends utils.Adapter {
    * geschrieben werden. Rueckgabe undefined = schreiben, sonst der Grund fuer
    * das Auslassen (fuers Log).
    *
-   * Drei Faelle werden ausgelassen:
-   *   - Startphase: die Bibliothek holt beim ersten P2P-Connect die Bilder der
-   *     letzten Ereignisse aller Kameras nach, die sind alt.
+   * Vier Faelle werden ausgelassen:
+   *   - kein frisches Ereignis: das Bild gehoert zu keiner Erkennung, die
+   *     gerade gemeldet wurde. Nur der Push-Weg liefert ein Bild zu einem
+   *     laufenden Ereignis, und der setzt immer motionDetected/personDetected/
+   *     ringing mit. Alles andere ist Nachgereichtes.
+   *   - Startphase: dasselbe fuer die Zeit direkt nach dem Start, falls die
+   *     Ereignispruefung abgeschaltet ist.
    *   - gleiches Bild: Bild-Inhalt identisch mit dem zuletzt gemeldeten.
    *   - Nachschlag: ein Ereignis liefert erst das Cloud-Vorschaubild und
    *     Sekunden spaeter den P2P-Ausschnitt; das zweite faellt weg.
@@ -1459,6 +1466,15 @@ class euSec extends utils.Adapter {
     const serial = device.getSerial();
     const hash = (0, import_node_crypto.createHash)("sha1").update(picture.data).digest("hex");
     const previous = this.lastPicture.get(serial);
+    const eventWindow = (this.config.pictureEventWindow ?? 180) * 1e3;
+    if (eventWindow > 0) {
+      const event = this.lastEvent.get(serial);
+      if (event === void 0 || now - event > eventWindow) {
+        this.lastPicture.set(serial, { hash, time: now });
+        const age = event === void 0 ? "none in this run" : `${Math.round((now - event) / 1e3)}s ago`;
+        return `no recent detection for this camera (${age})`;
+      }
+    }
     if (this.pictureGraceUntil > now) {
       this.lastPicture.set(serial, { hash, time: now });
       return `startup grace period, ${Math.round((this.pictureGraceUntil - now) / 1e3)}s left`;
@@ -1477,6 +1493,9 @@ class euSec extends utils.Adapter {
     return void 0;
   }
   async onDevicePropertyChanged(device, name, value) {
+    if (value === true && (name.endsWith("Detected") || name === import_eufy_security_client.PropertyName.DeviceRinging)) {
+      this.lastEvent.set(device.getSerial(), Date.now());
+    }
     const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
     for (const state in states) {
       const obj = await this.getObjectAsync(state);

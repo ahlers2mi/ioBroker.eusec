@@ -51,6 +51,11 @@ Adapter 2.0.3 and newer support node.js 24. Prior node.js version require a spec
 	### **WORK IN PROGRESS**
 -->
 
+### 2.1.4 (2026-08-30)
+- (ahlers2mi) Camera pictures: 2.1.3 only silenced the catch-up pictures during a grace period after the adapter start, but `Station.onConnect()` runs the same latest-events query on EVERY P2P connect - so a station reconnecting mid-run still announced the last, possibly days old, picture of each of its cameras. A picture now updates picture_url only when the same camera reported a detection shortly before, which is what the push path always does and the catch-up never does
+- (ahlers2mi) New setting "Only announce a camera picture within x seconds of a detection" (default 180). The startup grace period defaults to 0 now - the detection check replaces it and does not swallow a genuine event right after a start
+- (ahlers2mi) eufy-security-client fork builds are numbered (4.1.1-ahlers3), so the install log and the lock file show which build is in use
+
 ### 2.1.3 (2026-08-19)
 - (ahlers2mi) Camera pictures: an adapter start no longer publishes the last - possibly days old - picture of every camera at once, and a single event no longer produces two pictures (the cloud preview and, seconds later, the P2P crop). New settings "Ignore camera pictures for x seconds after adapter start" and "Minimum time in seconds between two camera pictures"; the picture file is always written, only the states are held back
 - (ahlers2mi) Updated eufy-security-client: the ids of received push messages are persisted again, so FCM stops redelivering messages that were already handled after a restart

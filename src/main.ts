@@ -44,8 +44,10 @@ export class euSec extends utils.Adapter {
      * Bilder kommen auch dann, wenn gerade nichts passiert ist: Station.onConnect()
      * der Bibliothek fragt per P2P die letzten Ereignisse ab
      * (databaseQueryLatestInfo), woraufhin fuer JEDE Kamera das Bild ihres letzten -
-     * womoeglich Tage alten - Ereignisses geladen wird. Nach einem Adapterstart
-     * melden sich so alle Kameras auf einmal mit alten Bildern. Ausserdem liefert ein
+     * womoeglich Tage alten - Ereignisses geladen wird. Das passiert bei JEDEM
+     * Verbindungsaufbau: beim Adapterstart wie mitten im Betrieb, wenn die Station
+     * sich neu verbindet. Alle Kameras melden dann auf einmal alte Bilder.
+     * Ausserdem liefert ein
      * einzelnes Ereignis zwei Bilder: erst das Push-Vorschaubild aus der Cloud,
      * Sekunden spaeter den P2P-Ausschnitt.
      * Beides faengt suppressPictureStates() ab, bevor picture_url/picture_html
@@ -54,6 +56,7 @@ export class euSec extends utils.Adapter {
      */
     private pictureGraceUntil = 0;
     private lastPicture = new Map<string, { hash: string; time: number }>();
+    private lastEvent = new Map<string, number>();
 
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
@@ -298,9 +301,10 @@ export class euSec extends utils.Adapter {
                     }
                 };
 
-                // Startphase: siehe suppressPictureStates(). Bestandsinstallationen
-                // haben den Wert noch nicht in der Konfiguration, darum der Vorgabewert.
-                const grace = this.config.pictureStartupGrace ?? 90;
+                // Startphase: siehe suppressPictureStates(). Seit der Pruefung auf ein
+                // frisches Ereignis in aller Regel nicht mehr noetig, darum Vorgabe 0 -
+                // sie wuerde sonst nur ein echtes Ereignis kurz nach dem Start schlucken.
+                const grace = this.config.pictureStartupGrace ?? 0;
                 this.pictureGraceUntil = grace > 0 ? Date.now() + grace * 1000 : 0;
 
                 this.eufy = await EufySecurity.initialize(config, this.logger);
@@ -1606,9 +1610,13 @@ export class euSec extends utils.Adapter {
      * geschrieben werden. Rueckgabe undefined = schreiben, sonst der Grund fuer
      * das Auslassen (fuers Log).
      *
-     * Drei Faelle werden ausgelassen:
-     *   - Startphase: die Bibliothek holt beim ersten P2P-Connect die Bilder der
-     *     letzten Ereignisse aller Kameras nach, die sind alt.
+     * Vier Faelle werden ausgelassen:
+     *   - kein frisches Ereignis: das Bild gehoert zu keiner Erkennung, die
+     *     gerade gemeldet wurde. Nur der Push-Weg liefert ein Bild zu einem
+     *     laufenden Ereignis, und der setzt immer motionDetected/personDetected/
+     *     ringing mit. Alles andere ist Nachgereichtes.
+     *   - Startphase: dasselbe fuer die Zeit direkt nach dem Start, falls die
+     *     Ereignispruefung abgeschaltet ist.
      *   - gleiches Bild: Bild-Inhalt identisch mit dem zuletzt gemeldeten.
      *   - Nachschlag: ein Ereignis liefert erst das Cloud-Vorschaubild und
      *     Sekunden spaeter den P2P-Ausschnitt; das zweite faellt weg.
@@ -1618,6 +1626,23 @@ export class euSec extends utils.Adapter {
         const serial = device.getSerial();
         const hash = createHash("sha1").update(picture.data).digest("hex");
         const previous = this.lastPicture.get(serial);
+
+        // Der Hauptfall. Station.onConnect() der Bibliothek fragt bei JEDEM
+        // P2P-Verbindungsaufbau die letzten Ereignisse ab (databaseQueryLatestInfo)
+        // und laedt daraufhin fuer jede Kamera das Bild ihres letzten Ereignisses -
+        // beim Adapterstart genauso wie mitten im Betrieb, wenn die Station sich
+        // neu verbindet. Diese Bilder gehoeren zu Ereignissen, die laengst vorbei
+        // sind, teils Tage. Ein Bild zaehlt darum nur, wenn dieselbe Kamera kurz
+        // zuvor eine Erkennung gemeldet hat.
+        const eventWindow = (this.config.pictureEventWindow ?? 180) * 1000;
+        if (eventWindow > 0) {
+            const event = this.lastEvent.get(serial);
+            if (event === undefined || now - event > eventWindow) {
+                this.lastPicture.set(serial, { hash: hash, time: now });
+                const age = event === undefined ? "none in this run" : `${Math.round((now - event) / 1000)}s ago`;
+                return `no recent detection for this camera (${age})`;
+            }
+        }
 
         if (this.pictureGraceUntil > now) {
             // Hash merken, damit ein direkt nach der Startphase noch einmal
@@ -1644,6 +1669,15 @@ export class euSec extends utils.Adapter {
     }
 
     private async onDevicePropertyChanged(device: Device, name: string, value: PropertyValue): Promise<void> {
+        // Vor dem ersten await merken, sonst koennte das Bild eines Ereignisses
+        // frueher durch suppressPictureStates() laufen als die Erkennung, die dazu
+        // gehoert. Alle Erkennungs-Eigenschaften enden auf "Detected"
+        // (motionDetected, personDetected, petDetected, vehicleDetected, ...),
+        // dazu kommt das Klingeln.
+        if (value === true && (name.endsWith("Detected") || name === PropertyName.DeviceRinging)) {
+            this.lastEvent.set(device.getSerial(), Date.now());
+        }
+
         const states = await this.getStatesAsync(`${device.getStateID("", 1)}.*`);
         for (const state in states) {
             const obj = await this.getObjectAsync(state);
