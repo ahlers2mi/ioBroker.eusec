@@ -1108,6 +1108,17 @@
             "lg": 3,
             "xl": 3
           },
+          "pictureEventWindow": {
+            "type": "number",
+            "min": 0,
+            "max": 3600,
+            "label": "Only announce a camera picture within x seconds of a detection (0 = off)",
+            "xs": 12,
+            "sm": 12,
+            "md": 4,
+            "lg": 3,
+            "xl": 3
+          },
           "alarmSoundDuration": {
             "type": "number",
             "min": 1,

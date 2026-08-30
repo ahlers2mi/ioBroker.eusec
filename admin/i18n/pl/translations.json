@@ -8,6 +8,7 @@
     "Time in seconds before event reset": "Czas w sekundach do zresetowania zdarzenia",
     "Ignore camera pictures for x seconds after adapter start (0 = off)": "Ignoruj obrazy z kamery przez x sekund po uruchomieniu adaptera (0 = wyłączone)",
     "Minimum time in seconds between two camera pictures (0 = off)": "Minimalny czas w sekundach między dwoma obrazami z kamery (0 = wyłączone)",
+    "Only announce a camera picture within x seconds of a detection (0 = off)": "Zgłaszaj obraz z kamery tylko w ciągu x sekund od wykrycia (0 = wyłączone)",
     "P2P connection type": "Typ połączenia P2P",
     "Only local connection": "Tylko połączenie lokalne",
     "Quickest connection": "Najszybsze połączenie",

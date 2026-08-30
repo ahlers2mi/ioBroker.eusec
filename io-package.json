@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "eusec",
-    "version": "2.1.3",
+    "version": "2.1.4",
     "news": {
+      "2.1.4": {
+        "en": "Camera pictures: the catch-up pictures a station sends on every P2P connect are no longer announced. A picture now only updates picture_url when the same camera reported a detection shortly before, which also covers a station reconnecting in the middle of a run - not just an adapter start. New setting for that window (default 180 s); the startup grace period is off by default now because the detection check replaces it",
+        "de": "Kamerabilder: die Bilder, die eine Station bei jedem P2P-Verbindungsaufbau nachreicht, werden nicht mehr gemeldet. Ein Bild aktualisiert picture_url nur noch, wenn dieselbe Kamera kurz zuvor eine Erkennung gemeldet hat - das greift auch, wenn sich die Station mitten im Betrieb neu verbindet, nicht nur beim Adapterstart. Neue Einstellung fuer dieses Zeitfenster (Vorgabe 180 s); die Startphase ist jetzt ab Werk aus, weil die Ereignispruefung sie ersetzt",
+        "ru": "Изображения с камер: снимки, которые станция досылает при каждом P2P-подключении, больше не публикуются. Изображение обновляет picture_url только если та же камера незадолго до этого сообщила об обнаружении — это работает и при переподключении станции во время работы, а не только при запуске адаптера. Новая настройка этого окна (по умолчанию 180 с); стартовая пауза теперь по умолчанию выключена",
+        "pt": "Imagens das câmaras: as imagens que uma estação envia a cada ligação P2P deixam de ser anunciadas. Uma imagem só atualiza picture_url se a mesma câmara tiver comunicado uma deteção pouco antes, o que também abrange uma estação a reconectar durante o funcionamento e não apenas o arranque do adaptador. Nova definição para essa janela (predefinição 180 s); o período de arranque está agora desligado por predefinição",
+        "nl": "Camerabeelden: de beelden die een station bij elke P2P-verbinding nalevert worden niet meer gemeld. Een beeld werkt picture_url alleen bij als dezelfde camera kort daarvoor een detectie meldde, wat ook geldt bij een station dat tijdens bedrijf opnieuw verbindt en niet alleen bij een adapterstart. Nieuwe instelling voor dat venster (standaard 180 s); de startperiode staat nu standaard uit",
+        "fr": "Images des caméras : les images qu'une station renvoie à chaque connexion P2P ne sont plus annoncées. Une image ne met à jour picture_url que si la même caméra a signalé une détection peu avant, ce qui couvre aussi une station qui se reconnecte en cours de fonctionnement, et pas seulement un démarrage de l'adaptateur. Nouveau réglage pour cette fenêtre (180 s par défaut) ; la période de démarrage est désormais désactivée par défaut",
+        "it": "Immagini delle telecamere: le immagini che una stazione recupera a ogni connessione P2P non vengono più annunciate. Un'immagine aggiorna picture_url solo se la stessa telecamera ha segnalato un rilevamento poco prima, il che copre anche una stazione che si riconnette durante il funzionamento e non solo l'avvio dell'adattatore. Nuova impostazione per questa finestra (predefinito 180 s); la fase di avvio è ora disattivata per impostazione predefinita",
+        "es": "Imágenes de las cámaras: las imágenes que una estación reenvía en cada conexión P2P ya no se anuncian. Una imagen solo actualiza picture_url si la misma cámara informó de una detección poco antes, lo que también cubre una estación que se reconecta durante el funcionamiento y no solo el inicio del adaptador. Nuevo ajuste para esa ventana (180 s por defecto); el periodo de arranque ahora está desactivado por defecto",
+        "pl": "Obrazy z kamer: obrazy, które stacja dosyła przy każdym połączeniu P2P, nie są już zgłaszane. Obraz aktualizuje picture_url tylko wtedy, gdy ta sama kamera krótko wcześniej zgłosiła wykrycie, co obejmuje również stację łączącą się ponownie w trakcie pracy, a nie tylko uruchomienie adaptera. Nowe ustawienie tego okna (domyślnie 180 s); okres startowy jest teraz domyślnie wyłączony",
+        "uk": "Зображення з камер: знімки, які станція досилає при кожному P2P-підключенні, більше не публікуються. Зображення оновлює picture_url лише якщо та сама камера незадовго до цього повідомила про виявлення — це працює і коли станція перепідключається під час роботи, а не лише при запуску адаптера. Нове налаштування цього вікна (типово 180 с); стартовий період тепер типово вимкнено",
+        "zh-cn": "摄像头图片：基站在每次 P2P 连接时补发的图片不再通报。只有当同一摄像头在此前不久报告过检测时，图片才会更新 picture_url——这同样涵盖基站在运行中重新连接的情况，而不只是适配器启动。新增该时间窗设置（默认 180 秒）；启动静默期现在默认关闭"
+      },
       "2.1.3": {
         "en": "Camera pictures: no more burst of old pictures after an adapter start, and one event no longer produces two pictures. New settings for the startup grace period and the minimum interval between pictures; updated eufy-security-client so FCM stops redelivering push messages that were already handled",
         "de": "Kamerabilder: nach einem Adapterstart kommen nicht mehr alle alten Bilder auf einmal, und ein Ereignis liefert nicht mehr zwei Bilder. Neue Einstellungen fuer die Startphase und den Mindestabstand zwischen Bildern; eufy-security-client aktualisiert, damit FCM bereits verarbeitete Push-Nachrichten nicht erneut zustellt",
@@ -223,8 +236,9 @@
     "maxLivestreamDuration": 120,
     "verificationMethod": 2,
     "eventDuration": 15,
-    "pictureStartupGrace": 90,
+    "pictureStartupGrace": 0,
     "pictureMinInterval": 10,
+    "pictureEventWindow": 180,
     "p2pConnectionType": "quickest",
     "acceptInvitations": true,
     "alarmSoundDuration": 60,
