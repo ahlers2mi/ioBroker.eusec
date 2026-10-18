@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>go2rtc - Stream</title>
+    <style>
+        body {
+            background: black;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        .flex {
+            flex-wrap: wrap;
+            align-content: flex-start;
+            align-items: flex-start;
+        }
+    </style>
+</head>
+<body>
+<script type="module" src="./video-stream.js"></script>
+<script type="module">
+    /*
+     * The stream page of go2rtc, with the defaults that hurt on weak clients like a Fire tablet
+     * replaced. Everything else - the query parameters src, mode, background and width, multiple
+     * streams side by side, the status overlay - behaves exactly as before, so an existing link to
+     * this page keeps working.
+     *
+     * What is different:
+     *   - WebRTC is no longer the preferred mode. Every stream of this adapter is pushed into
+     *     go2rtc, so go2rtc cannot ask the camera for a keyframe and WebRTC starts in the middle of
+     *     a GOP - green blocks and artifacts. onpcvideo() even lets WebRTC take over from MSE once
+     *     it connects. Pass ?mode=webrtc,mse,hls,mjpeg to get the old order back.
+     *   - The picture is pulled back to the live edge when it falls behind. MSE holds a buffer of 15
+     *     seconds and the player moves currentTime only once, when the element is attached, so every
+     *     stall of the client used to add to the delay permanently.
+     *   - A reconnect starts after a second instead of after the 15 of RECONNECT_TIMEOUT, doubling
+     *     up to those 15 seconds while playback does not come back.
+     *   - Playback that hangs rebuilds the connection. When the livestream stops - the maximum
+     *     duration is reached, or a lost P2P packet ends the stream - go2rtc keeps the consumer
+     *     attached without sending anything and without closing it, so the picture used to freeze
+     *     for good and did not come back even once the next livestream started.
+     *
+     * Added query parameters: audio=false (play video only), controls=false (hide the native
+     * controls, so a tap on a touch screen cannot pause the stream), drift=<seconds> (how far the
+     * picture may lag behind the live edge before it is skipped forward, default 1.5).
+     */
+    import './video-stream.js';
+
+    const params = new URLSearchParams(location.search);
+
+    /** Seconds the picture may lag behind the newest buffered frame before it is skipped forward. */
+    const DEFAULT_DRIFT = 1.5;
+    // A non numeric ?drift= would give NaN, and every comparison against NaN is false - the catch up
+    // would be switched off without saying so.
+    const drift = Number.parseFloat(params.get('drift'));
+    const MAX_DRIFT = Number.isFinite(drift) && drift > 0 ? drift : DEFAULT_DRIFT;
+    /** Delay of the first reconnect. Doubles up to RECONNECT_MAX until playback works again. */
+    const RECONNECT_MIN = 1000;
+    const RECONNECT_MAX = 15000;
+    /**
+     * How long playback may hang before the connection is rebuilt. Long enough that catching up to
+     * the live edge, which stalls the element for a moment, does not count as a hang.
+     */
+    const STALL_MIN = 5000;
+    /** How often a player asks again while the station carries the livestream of another camera. */
+    const BUSY_RETRY = 3000;
+    /** How often a player asks again for a camera the adapter could not wake up. */
+    const UNREACHABLE_RETRY = 15000;
+    /** How long a paused player keeps its connection - after that the station is free for others. */
+    const PAUSE_RELEASE = 1000;
+
+    /**
+     * Tells the page that embeds the player what it is doing, so a dashboard can count its own
+     * timeout from the first picture instead of from opening the player:
+     * { type: 'eusec-stream', src, state: 'waiting' | 'unreachable' | 'playing' | 'paused' | 'error', detail }
+     *
+     * @param {string} state What the player does
+     * @param {string} [detail] The camera the station is busy with, or the error
+     */
+    function notify(state, detail) {
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: 'eusec-stream', src: params.get('src'), state, detail }, '*');
+        }
+    }
+
+    // video-stream.js only registers the element, it exports nothing. Extending the registered class
+    // keeps its status overlay ("loading", the mode, errors) instead of reimplementing it.
+    const VideoStream = customElements.get('video-stream');
+
+    class EusecStream extends VideoStream {
+        oninit() {
+            super.oninit();
+
+            this.video.controls = params.get('controls') !== 'false';
+            this.video.disablePictureInPicture = true;
+            this.stallTimeout = STALL_MIN;
+            this.stallTID = 0;
+
+            this.video.addEventListener('playing', () => {
+                this.RECONNECT_TIMEOUT = RECONNECT_MIN;
+                this.stallTimeout = STALL_MIN;
+                this.clearStall();
+                clearTimeout(this.pauseTID);
+                notify('playing');
+            });
+            // A paused player still holds its consumer in go2rtc, and with it the livestream - and
+            // the station, which carries one livestream at a time. Let go, and come back on play.
+            this.video.addEventListener('pause', () => {
+                clearTimeout(this.pauseTID);
+                this.pauseTID = setTimeout(() => {
+                    if (this.video.paused) {
+                        this.ondisconnect();
+                        notify('paused');
+                    }
+                }, PAUSE_RELEASE);
+            });
+            this.video.addEventListener('play', () => {
+                clearTimeout(this.pauseTID);
+                if (!this.ws) {
+                    this.onconnect();
+                }
+            });
+            // "waiting" is what the element fires when it runs out of buffered data, which is the
+            // only sign that the producer is gone - the socket stays open and silent.
+            this.video.addEventListener('waiting', () => this.watchStall());
+            this.video.addEventListener('timeupdate', () => this.catchUp());
+        }
+
+        /**
+         * Rebuilds the connection when playback does not come back. A consumer that go2rtc left
+         * behind never receives anything again, not even from the next producer, so reconnecting is
+         * the only way out. Backs off the same way a closed socket does, because the reconnect finds
+         * no producer for as long as no livestream runs.
+         */
+        watchStall() {
+            if (this.stallTID) {
+                return;
+            }
+            this.stallTID = setTimeout(() => {
+                this.stallTID = 0;
+                // A hidden page is disconnected on purpose when background is off, and a paused
+                // element is the viewer's decision - neither is a hang.
+                if (!this.isConnected || this.video.paused || document.hidden) {
+                    return;
+                }
+                this.ondisconnect();
+                this.onconnect();
+                this.stallTimeout = Math.min(this.stallTimeout * 2, RECONNECT_MAX);
+                // The rebuilt connection can be just as silent, and a stopped element fires no
+                // further "waiting" - keep watching instead of waiting for an event that never comes.
+                this.watchStall();
+            }, this.stallTimeout);
+        }
+
+        /**
+         * Stops watching for a hang, called as soon as pictures arrive again.
+         */
+        clearStall() {
+            if (this.stallTID) {
+                clearTimeout(this.stallTID);
+                this.stallTID = 0;
+            }
+        }
+
+        /**
+         * Seeks to the newest buffered frame once the picture has fallen too far behind. Without it
+         * every hiccup of the client decoder turns into delay that is never made up again.
+         */
+        catchUp() {
+            const buffered = this.video.buffered;
+            if (!buffered.length || this.video.seeking || this.video.paused) {
+                return;
+            }
+
+            const live = buffered.end(buffered.length - 1);
+            if (live - this.video.currentTime > MAX_DRIFT) {
+                this.video.currentTime = live - 0.3;
+            }
+        }
+
+        /**
+         * A station carries one livestream at a time. While another camera of it is watched, the
+         * adapter refuses this one with a reason that names that camera - see busyReason() in
+         * src/lib/ondemand.ts. That is no error: say what is going on and ask again until the
+         * station is free, so the picture appears without the viewer doing anything.
+         */
+        set divError(value) {
+            const de = (navigator.language || '').toLowerCase().startsWith('de');
+            const unreachable = /Camera not reachable - (.+?)(,|$)/.exec(value);
+            if (unreachable) {
+                // The adapter pauses the starts of a camera that did not answer, so it does not keep
+                // the station busy - try again later.
+                notify('unreachable', unreachable[1]);
+                this.querySelector('.mode').innerText = de ? 'nicht erreichbar' : 'not reachable';
+                this.querySelector('.status').innerText = de
+                    ? `„${unreachable[1]}“ antwortet gerade nicht - neuer Versuch in Kürze.`
+                    : `"${unreachable[1]}" does not answer right now - trying again shortly.`;
+                this.retryLater(UNREACHABLE_RETRY);
+                return;
+            }
+            const busy = /Station busy - (.+?) is streaming/.exec(value);
+            if (!busy) {
+                super.divError = value;
+                notify('error', value);
+                return;
+            }
+            notify('waiting', busy[1]);
+            // The retry below is ours - keep the backoff of a closed socket out of it.
+            this.RECONNECT_TIMEOUT = RECONNECT_MIN;
+            this.querySelector('.mode').innerText = de ? 'wartet' : 'waiting';
+            this.querySelector('.status').innerText = de
+                ? `Die Station überträgt gerade „${busy[1]}“ – dieser Stream startet, sobald sie frei ist.`
+                : `The station is streaming "${busy[1]}" right now - this stream starts as soon as it is free.`;
+            this.retryLater(BUSY_RETRY);
+        }
+
+        /**
+         * Rebuilds the connection after a while - go2rtc keeps the socket open after an error.
+         *
+         * @param {number} delay Milliseconds to wait
+         */
+        retryLater(delay) {
+            clearTimeout(this.busyTID);
+            this.busyTID = setTimeout(() => {
+                if (this.isConnected) {
+                    this.ondisconnect();
+                    this.onconnect();
+                }
+            }, delay);
+        }
+
+        onclose() {
+            const reconnecting = super.onclose();
+            // go2rtc refuses a consumer while no producer exists, so back off instead of hammering
+            // it once per second while the livestream is not running (yet).
+            this.RECONNECT_TIMEOUT = Math.min(this.RECONNECT_TIMEOUT * 2, RECONNECT_MAX);
+            return reconnecting;
+        }
+    }
+
+    customElements.define('eusec-stream', EusecStream);
+
+    // support multiple streams and multiple modes
+    const streams = params.getAll('src');
+    const modes = params.getAll('mode');
+    if (modes.length === 0) modes.push('');
+
+    while (modes.length > streams.length) {
+        streams.push(streams[0]);
+    }
+    while (streams.length > modes.length) {
+        modes.push(modes[0]);
+    }
+
+    if (streams.length > 1) {
+        document.body.className = 'flex';
+    }
+
+    const background = params.get('background') !== 'false';
+    const width = '1 0 ' + (params.get('width') || '320px');
+    // The adapter pushes video and audio into go2rtc over two connections without a common clock, so
+    // their drift can stall the decoder. Dropping the audio track also saves a decoder on the client.
+    const media = params.get('audio') === 'false' ? 'video' : 'video,audio';
+
+    for (let i = 0; i < streams.length; i++) {
+        const video = document.createElement('eusec-stream');
+        video.background = background;
+        video.mode = modes[i] || 'mse,hls,mjpeg';
+        video.media = media;
+        video.RECONNECT_TIMEOUT = RECONNECT_MIN;
+        video.style.flex = width;
+        video.src = new URL('api/ws?src=' + encodeURIComponent(streams[i]), location.href);
+        document.body.appendChild(video);
+    }
+</script>
+</body>
+</html>
