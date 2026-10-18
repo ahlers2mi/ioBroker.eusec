@@ -13,89 +13,89 @@
 
 [![NPM](https://nodei.co/npm/iobroker.eusec.png?downloads=true)](https://nodei.co/npm/iobroker.eusec/)
 
-This is an [ioBroker](https://www.iobroker.net) adapter that uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to comunicate with Eufy devices.
+> [!IMPORTANT]
+> This adapter cannot be installed from github
+
+
+This is an [ioBroker](https://www.iobroker.net) adapter that uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to communicate with Eufy devices.
 
 **This project is not affiliated with Anker and Eufy (Eufy Security). It is a personal project that is maintained in spare time.**
 
 ## Description
 
-This adapter allows to control [Eufy security devices](https://us.eufylife.com/collections/security) by connecting to the Eufy cloud servers and local/remote stations.
+This adapter allows you to control [Eufy security devices](https://us.eufylife.com/collections/security) by connecting to the Eufy cloud servers and local/remote stations.
 
 You need to provide your Cloud login credentials. The adapter connects to your cloud account and polls for all device data via HTTPS. Now a local or remote P2P connection to the Eufy stations/devices is also supported. However, a connection to the Eufy Cloud is always a prerequisite.
 
-One Adapter instance will show all devices from one Eufy Cloud account and allows to control them.
+One Adapter instance will show all devices from one Eufy Cloud account and allows you to control them.
 
 ## Documentation
 
-Checkout the documentation [here](https://iobroker-community-adapters.github.io/ioBroker.eusec/).
+Check out the documentation [here](https://github.com/iobroker-community-adapters/ioBroker.eusec/tree/master/docs).
 
 ## Known working devices
 
-Information about supported devices can be found [here](https://github.com/bropat/eufy-security-client#known-working-devices).
+Information about supported devices can be found [here](https://github.com/iobroker-community-adapters/ioBroker.eusec/blob/master/docs/devices.md).
 
 ## Credits
 
 This adapter would not have been possible without the great work of Patrick Broetto (brobat) <https://github.com/bropat>, who created previous releases of this adapter.
 
-## IMPORTANT information when upgrading to node.js 24
+## Upgrading from adapter 2.x or older
 
-Adapter 2.0.3 and newer support node.js 24. Prior node.js version require a special setup which became invalid with node.js 24. So when upgrading node.js form any version lower then 24.x.x to node.js 24 please follow these steps:
+Adapter 2.x and older added `--security-revert=CVE-2023-46809` to the node process parameters of every instance running on node.js 18 or 20. node.js 22 and newer refuse to start an instance with that flag, and this adapter requires node.js 24.
 
-- If you have node.js < 24 and adapter < 2.0.0 installed, please update node.js first and install adapter 2.0.3 afterwards.
-- If you have adapter >= 2.0.0 installed with any node release prio than 24 you MUST reinstall the adapter. A detailled description (in german) is available at our forum (https://forum.iobroker.net/topic/82651/test-adapter-eusec-v2-0-x)
-  
+Updating this adapter clears the node process parameters of all eusec instances, which removes the flag. Other parameters (e.g. `--max-old-space-size`) are cleared as well and have to be entered again after each update. If an instance still does not start and its log shows `--security-revert=CVE-2023-46809`, remove the parameters by hand and restart the instance:
+
+```
+iobroker object set system.adapter.eusec.0 common.nodeProcessParams=[]
+```
+
+A detailed description (in German) is available at our forum (https://forum.iobroker.net/topic/82651/test-adapter-eusec-v2-0-x).
+
 ## Changelog
 
 <!--
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+### 3.4.2 (2026-10-05)
+- (typhosj) On-demand livestreams no longer show only a picture every few seconds and then go black. Since 3.4.0 every keyframe of 16 KB or more was taken for a go2rtc that does not keep up, and the video up to the next keyframe was dropped. Data is now only dropped once more than 4 MB wait for go2rtc (reported in the forum)
 
-### 2.1.4 (2026-08-30)
-- (ahlers2mi) Camera pictures: 2.1.3 only silenced the catch-up pictures during a grace period after the adapter start, but `Station.onConnect()` runs the same latest-events query on EVERY P2P connect - so a station reconnecting mid-run still announced the last, possibly days old, picture of each of its cameras. A picture now updates picture_url only when the same camera reported a detection shortly before, which is what the push path always does and the catch-up never does
-- (ahlers2mi) New setting "Only announce a camera picture within x seconds of a detection" (default 180). The startup grace period defaults to 0 now - the detection check replaces it and does not swallow a genuine event right after a start
-- (ahlers2mi) eufy-security-client fork builds are numbered (4.1.1-ahlers3), so the install log and the lock file show which build is in use
+### 3.4.1 (2026-10-05)
+- (typhosj) Updating the adapter clears the node process parameters of all eusec instances again, which removes `--security-revert=CVE-2023-46809` left over from adapter 2.x. The install script that removed only this flag is gone, since install scripts are not allowed for ioBroker adapters. Other parameters such as `--max-old-space-size` have to be entered again after each update
 
-### 2.1.3 (2026-08-19)
-- (ahlers2mi) Camera pictures: an adapter start no longer publishes the last - possibly days old - picture of every camera at once, and a single event no longer produces two pictures (the cloud preview and, seconds later, the P2P crop). New settings "Ignore camera pictures for x seconds after adapter start" and "Minimum time in seconds between two camera pictures"; the picture file is always written, only the states are held back
-- (ahlers2mi) Updated eufy-security-client: the ids of received push messages are persisted again, so FCM stops redelivering messages that were already handled after a restart
+### 3.4.0 (2026-10-02)
+- (typhosj) Floodlight Cam E30 (T8426): preset positions are now sent to the camera (before, writing `preset_position`, `save_preset_position` or `delete_preset_position` had no effect), and the livestream is no longer rejected with `ERROR_INVALID_ACCOUNT`. The camera now gets the commands of the Floodlight Cam E340, which the library already defines it like (reported in the forum)
+- (hdering) **Changed URLs:** without a configured host name, the livestream URLs (states `livestream`, `livestream_rtsp`) now use the IPv4 address in the LAN of the ioBroker host the instance runs on instead of the name of the first ioBroker host (e.g. `http://192.168.1.10:1984/...` instead of `http://iobroker:1984/...`). Tablets, phones and dashboards often cannot resolve the name, and with several hosts the first one is not necessarily the one that runs go2rtc. Visualizations and scripts that store the URL get the new one with the next livestream; to keep a name, enter it in the setting "Hostname"
+- (hdering) New setting "Start livestreams on demand": the livestream of a camera starts as soon as its player page or RTSP URL is opened and stops shortly after the last viewer left, so `start_stream` is no longer needed and a dashboard shows a picture right away. A livestream that ends at the maximum duration is started again while somebody still watches. A station carries one livestream at a time: while one of its cameras is watched, the player of another one says which camera that is and starts by itself once the station is free, and a paused player releases the station. Starts the camera acknowledges without sending anything are retried. The states `livestream` and `livestream_rtsp` always carry the URL in this mode. go2rtc's player page and API port have no authentication, so every device in the network that reaches them can wake the cameras. Off by default
+- (hdering) New tab "Streams" in the instance settings: every device with a livestream with its station, the player URL to open and the RTSP URL - no need to look the streams up in go2rtc anymore
+- (hdering) New setting "Livestream quality": sets the streaming quality of every camera to low, medium or high before its livestream starts, so no camera streams at "Auto", where it changes the resolution mid-stream and browsers show a green or frozen picture. The encoding of battery doorbells ("Medium / Low Encoding") is kept, devices that name their qualities by resolution ("1080P", "2K HD") are left alone. Off by default. The warning about the "Auto" quality is now logged once per device instead of at every livestream start, and names the state to change and the fixed qualities the device offers
+- (hdering) New setting "Wait for camera data (sec)", 15 seconds by default: a livestream is no longer given up after 5 seconds without data. Battery cameras that first have to wake up often need longer, and their livestream then ended with "we haven't received any data for 5 seconds" before the first frame
+- (hdering) The maximum livestream duration counts from the first picture instead of from the start command, so a camera that needs a minute to wake up no longer loses that minute of its livestream
+- (hdering) Livestream: the audio track (or, with a slow camera, the whole stream) no longer breaks after 5 seconds with `socket hang up`. go2rtc drops connections whose request header does not arrive within 5 seconds, and the adapter only sent it with the first data. A livestream that already ended is no longer stopped a second time, which logged a misleading warning
 
-### 2.1.2 (2026-08-03)
-- (ahlers2mi) Updated eufy-security-client with a P2P fix: a stalled connection setup no longer blocks automatic reconnect, so a dropped station reconnects on its own instead of leaving commands to time out with ERROR_CONNECT_TIMEOUT (-134) until an adapter restart
+### 3.3.0 (2026-09-21)
+- (typhosj) **Breaking:** the tilt down button of pan and tilt cameras is renamed from `titl_down` to `tilt_down`. The update moves the existing object with its name and custom settings (e.g. history); scripts and visualizations that use the old id have to be changed to `tilt_down`
+- (typhosj) New setting "Devices with a compatibility stream": the livestream of a camera listed there is re-encoded to 720p H.264, keeping the aspect ratio of the camera, before it reaches the player, which makes it playable on old WebViews, kiosk tablets and hardware decoders that cannot handle the resolution the camera sends. The states `livestream` and `livestream_rtsp` of that camera point at the transcoded stream, the untouched one stays available under the serial number. Transcoding costs CPU on the ioBroker host while such a stream is watched, which is why it is off by default and set per device (#153)
+- (typhosj) Talkback: devices with a speaker get the state `talkback_play`. Writing an http(s) URL or an absolute file path to it plays that audio through the device; a livestream is started for it if none is running and stopped again afterwards (#34)
+- (typhosj) New setting "Battery devices that stay connected": standalone battery devices on permanent power (power supply or solar panel) listed there keep their P2P connection instead of losing it 30 seconds after the last command, and are reconnected when it drops. It drains the battery of a device that is not on permanent power (#33)
+- (typhosj) The eufyCam C31 (T817L) is no longer an unknown device without states; the adapter handles it like the SoloCam Spotlight 1080, which gives it livestream, motion and person detection, light and alarm. Pan and tilt are not available yet (#156)
+- (typhosj) Installing the adapter now removes only `--security-revert=CVE-2023-46809` from the node process parameters of an instance instead of clearing them all, so parameters such as `--max-old-space-size` survive an update. A failure there no longer aborts the installation
+- (typhosj) Event pictures that arrive in a format the adapter cannot decrypt (e.g. `v8_eufysecurity`) are now loaded from the HomeBase over P2P instead, the way the picture is loaded when the adapter starts. The picture appears about a minute after the event, once the station has stored it (#136)
+- (typhosj) Livestreams no longer fail with "RSA_PKCS1_PADDING is no longer supported for private decryption" on node.js builds that refuse RSA PKCS#1 v1.5 decryption; the stream key is now decrypted by node-rsa's own implementation (#144)
+- (typhosj) Error messages in the log show the actual error again; before, an error passed along with a log line was written as `{}`, and an error with circular references could not be logged at all
+- (typhosj) A device or station property whose state had no value yet now receives its updates; before, such a state stayed empty until the adapter was restarted
+- (typhosj) The adapter no longer rewrites the object of every property state on each start, only the ones whose definition actually changed
+- (typhosj) A station that disconnects no longer causes warnings about missing `livestream` states for sensors, locks and other devices without a livestream
+- (typhosj) The `chime` message command now always answers exactly once: with an error if parameters are missing (before: no answer at all) and only with "not supported" for a station without chime (before: also "chime command sent")
+- (typhosj) The state `set_privacy_angle` is named "Set Privacy Angle" instead of "Set Default Angle"; existing objects are renamed on update unless their name was changed by hand
+- (typhosj) A channel named "unknown" is no longer deleted on start while it still holds states that have no value yet; only channels without any object below them are removed
+- (typhosj) Update migrations compare adapter versions correctly beyond x.9 (3.10.0 was treated as older than 3.9.0)
+- (typhosj) Removed unused code and the no longer needed dependencies `@bropat/fluent-ffmpeg` and `fs-extra`
 
-### 2.1.1 (2026-07-06)
-- (ahlers2mi) Fixed adapter start ("Cannot find module eufy-security-client/build/index.js"): the eufy-security-client git dependency now builds automatically on installation
-
-### 2.1.0 (2026-07-04)
-- (ahlers2mi) Updated eufy-security-client to 4.1.1 (eufy_mega v6 transport + FCM push registration, v2 thumbnail geometry auto-detection)
-- (copilot) Adapter requires node.js >= 24 now
-- (copilot) Adapter requires admin >= 7.7.22 now
-
-### 2.0.4 (2026-06-19)
-- (ahlers2mi) Use eufy-security-client 4.0.0 with auto-detected geometry for v2_eufysecurity event thumbnails (fixes sheared/colour-corrupted images and .undefined file extension)
-
-### 2.0.3 (2025-10-26)
-- (mcm1957) Remove fix for CVE-2023-46809 for node.js 22 and newer
-
-### 2.0.0 (2025-10-26)
-
-- (mcm1957) Adapter has been migrated to iobroker-community-adapters organisation
-- (mcm1957) Adapter requires node.js >= 20, js-controller >= 6.0.11 and admin >= 7.6.17 now
-- (mcm1957) Dependencies have been updated
-
-### 1.3.3 (2024-09-28)
-
-* (bropat) Updated version of the package eufy-security-client (3.1.1)
-* (bropat) Further details can be found in the changelog of eufy-security-client (3.1.1)
-
-### 1.3.2 (2024-09-10)
-
-* (bropat) Fixed issue #440
-
-### 1.3.1 (2024-09-08)
-
-* (bropat) Fixed issue #436
-* (bropat) Fixed issue #439
+### 3.2.1 (2026-09-18)
+- (typhosj) An event picture that cannot be decoded no longer replaces the last picture with a `<serial>.unknown` file; `picture_url` and `picture_html` keep the previous picture and a warning names the device, the data length and the image format (#136)
 
 [Older changelogs can be found there](CHANGELOG_OLD.md)
 
@@ -105,6 +105,10 @@ MIT License
 
 Copyright (c) 2025-2026 iobroker-community-adapters <iobroker-community-adapters@gmx.de>  
 Copyright (c) 2020-2024 bropat <patrick.broetto@gmail.com>
+
+The web pages in `www/` that go2rtc serves are taken from [go2rtc](https://github.com/AlexxIT/go2rtc),
+MIT licensed, Copyright (c) 2022 Alexey Khit. Their license text is in `www/LICENSE.go2rtc`, the list
+of files and what was changed is in `www/VENDOR.md`.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
