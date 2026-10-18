@@ -20,9 +20,7 @@ var types_exports = {};
 __export(types_exports, {
   DataLocation: () => DataLocation,
   DeviceStateID: () => DeviceStateID,
-  IMAGE_FILE_JPEG_EXT: () => IMAGE_FILE_JPEG_EXT,
   RoleMapping: () => RoleMapping,
-  STREAM_FILE_NAME_EXT: () => STREAM_FILE_NAME_EXT,
   StationStateID: () => StationStateID
 });
 module.exports = __toCommonJS(types_exports);
@@ -30,8 +28,6 @@ var import_eufy_security_client = require("eufy-security-client");
 const DataLocation = {
   LAST_EVENT: "last_event"
 };
-const STREAM_FILE_NAME_EXT = ".m3u8";
-const IMAGE_FILE_JPEG_EXT = ".jpg";
 const RoleMapping = {
   [import_eufy_security_client.PropertyName.Name]: "info.name",
   [import_eufy_security_client.PropertyName.StationMacAddress]: "info.mac",
@@ -57,9 +53,6 @@ const RoleMapping = {
   [import_eufy_security_client.PropertyName.DeviceChargingStatus]: "info.status"
 };
 const DeviceStateID = {
-  /*LAST_EVENT_PIC_URL: "last_event_pic_url",
-  LAST_EVENT_PIC_HTML: "last_event_pic_html",
-  LAST_EVENT_VIDEO_URL: "last_event_video_url",*/
   LIVESTREAM: "livestream",
   START_STREAM: "start_stream",
   STOP_STREAM: "stop_stream",
@@ -72,13 +65,17 @@ const DeviceStateID = {
   PAN_LEFT: "pan_left",
   PAN_RIGHT: "pan_right",
   TILT_UP: "tilt_up",
-  TILT_DOWN: "titl_down",
+  TILT_DOWN: "tilt_down",
   ROTATE_360: "rotate_360",
+  PRESET_POSITION: "preset_position",
+  SAVE_PRESET_POSITION: "save_preset_position",
+  DELETE_PRESET_POSITION: "delete_preset_position",
   SET_DEFAULT_ANGLE: "set_default_angle",
   SET_PRIVACY_ANGLE: "set_privacy_angle",
   CALIBRATE: "calibrate",
   UNLOCK: "unlock",
-  OPEN_BOX: "open_box"
+  OPEN_BOX: "open_box",
+  TALKBACK_PLAY: "talkback_play"
 };
 const StationStateID = {
   REBOOT: "reboot",
@@ -90,9 +87,7 @@ const StationStateID = {
 0 && (module.exports = {
   DataLocation,
   DeviceStateID,
-  IMAGE_FILE_JPEG_EXT,
   RoleMapping,
-  STREAM_FILE_NAME_EXT,
   StationStateID
 });
 //# sourceMappingURL=types.js.map

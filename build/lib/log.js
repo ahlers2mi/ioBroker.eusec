@@ -18,9 +18,34 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var log_exports = {};
 __export(log_exports, {
+  formatLogParams: () => formatLogParams,
   ioBrokerLogger: () => ioBrokerLogger
 });
 module.exports = __toCommonJS(log_exports);
+const formatLogParams = (params) => {
+  const seen = /* @__PURE__ */ new WeakSet();
+  return JSON.stringify(params, (_key, value) => {
+    if (typeof value === "bigint") {
+      return value.toString();
+    }
+    if (value === null || typeof value !== "object") {
+      return value;
+    }
+    if (seen.has(value)) {
+      return "[Circular]";
+    }
+    seen.add(value);
+    if (value instanceof Error) {
+      return {
+        ...value,
+        name: value.name,
+        message: value.message,
+        ...value.cause !== void 0 ? { cause: value.cause } : {}
+      };
+    }
+    return value;
+  });
+};
 class ioBrokerLogger {
   log;
   constructor(log) {
@@ -49,7 +74,7 @@ class ioBrokerLogger {
       }
     }
     if (optionalParams && optionalParams.length > 0) {
-      return `${tag}${msg} ${JSON.stringify(optionalParams)}`;
+      return `${tag}${msg} ${formatLogParams(optionalParams)}`;
     }
     return `${tag}${msg}`;
   }
@@ -71,6 +96,7 @@ class ioBrokerLogger {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  formatLogParams,
   ioBrokerLogger
 });
 //# sourceMappingURL=log.js.map

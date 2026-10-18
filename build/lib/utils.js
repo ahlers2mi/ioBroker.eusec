@@ -28,170 +28,127 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var utils_exports = {};
 __export(utils_exports, {
-  changeRole: () => changeRole,
+  commonChanged: () => commonChanged,
+  compareVersions: () => compareVersions,
   convertCamelCaseToSnakeCase: () => convertCamelCaseToSnakeCase,
+  deleteEmptyUnknownChannels: () => deleteEmptyUnknownChannels,
   deleteStates: () => deleteStates,
   getImageAsHTML: () => getImageAsHTML,
   getShortUrl: () => getShortUrl,
-  getVideoClipLength: () => getVideoClipLength,
   handleUpdate: () => handleUpdate,
-  isEmpty: () => isEmpty,
-  lowestUnusedNumber: () => lowestUnusedNumber,
   removeFiles: () => removeFiles,
-  removeLastChar: () => removeLastChar,
-  setStateAsync: () => setStateAsync,
+  setPropertyState: () => setPropertyState,
   setStateChangedAsync: () => setStateChangedAsync,
-  sleep: () => sleep
+  toStateValue: () => toStateValue
 });
 module.exports = __toCommonJS(utils_exports);
-var import_eufy_security_client = require("eufy-security-client");
 var import_node_path = __toESM(require("node:path"));
-var import_fs_extra = __toESM(require("fs-extra"));
-var utils = __toESM(require("@iobroker/adapter-core"));
+var import_node_util = __toESM(require("node:util"));
 const setStateChangedAsync = async function(adapter, id, value) {
-  return await adapter.setStateChangedAsync(id, value === void 0 || value === null ? null : { val: value, ack: true }).catch();
+  await adapter.setStateChangedAsync(id, value === void 0 || value === null ? null : { val: value, ack: true }).catch(() => {
+  });
 };
-const isEmpty = function(str) {
-  if (str) {
-    if (str.length > 0)
-      return false;
-    return true;
+const toStateValue = (type, value) => (type === "string" || type === "object") && typeof value === "object" ? JSON.stringify(value) : value;
+const setPropertyState = async function(adapter, id, name, value) {
+  var _a;
+  const obj = await adapter.getObjectAsync(id);
+  if (((_a = obj == null ? void 0 : obj.native) == null ? void 0 : _a.name) !== name) {
+    return false;
   }
+  await setStateChangedAsync(adapter, id, toStateValue(obj.common.type, value));
   return true;
 };
+const PRESERVED_COMMON = ["custom", "smartName", "material", "habpanel", "mobile"];
+const commonChanged = (stored, wanted) => {
+  const comparable = (common) => Object.fromEntries(
+    Object.entries(JSON.parse(JSON.stringify(common))).filter(
+      ([key]) => !PRESERVED_COMMON.includes(key)
+    )
+  );
+  return !import_node_util.default.isDeepStrictEqual(comparable(stored), comparable(wanted));
+};
 const getImageAsHTML = function(data, mime = "image/jpg") {
-  if (data && data.length > 0)
+  if (data && data.length > 0) {
     return `<img src="data:${mime};base64,${data.toString("base64")}" style="width: auto ;height: 100%;" />`;
+  }
   return "";
 };
-const setStateAsync = async function(adapter, state_id, common_name, value, role = "text", type = "string") {
-  await adapter.setObjectNotExistsAsync(state_id, {
-    type: "state",
-    common: {
-      name: common_name,
-      type,
-      role,
-      read: true,
-      write: false
-    },
-    native: {}
-  });
-  await adapter.setStateAsync(state_id, { val: value, ack: true });
-};
-const removeFiles = function(adapter, stationSerial, folderName, device_sn) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const dir_path = import_node_path.default.join(stationSerial, folderName);
-      if (await adapter.fileExistsAsync(adapter.namespace, dir_path)) {
-        const files = (await adapter.readDirAsync(adapter.namespace, dir_path)).filter((fn) => fn.file.startsWith(device_sn));
-        try {
-          files.map((filename) => adapter.delFileAsync(adapter.namespace, import_node_path.default.join(dir_path, filename.file)));
-        } catch (error) {
-        }
-      }
-      resolve();
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-const lowestUnusedNumber = function(sequence, startingFrom) {
-  const arr = sequence.slice(0);
-  arr.sort((a, b) => a - b);
-  return arr.reduce((lowest, num, i) => {
-    const seqIndex = i + startingFrom;
-    return num !== seqIndex && seqIndex < lowest ? seqIndex : lowest;
-  }, arr.length + startingFrom);
-};
-const sleep = async (ms) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-};
-const getVideoClipLength = (device) => {
-  let length = 60;
-  const workingMode = device.getRawProperty(import_eufy_security_client.CommandType.CMD_SET_PIR_POWERMODE);
-  if (workingMode !== void 0) {
-    switch (workingMode) {
-      case "0":
-        if (device.isCamera2Product() || device.isIndoorCamera() || device.isSoloCameras())
-          length = 20;
-        else if (device.isBatteryDoorbell() || device.isBatteryDoorbell2())
-          length = 30;
-        break;
-      case "1":
-        break;
-      case "2":
-        const customValue = device.getRawProperty(import_eufy_security_client.CommandType.CMD_DEV_RECORD_TIMEOUT);
-        if (customValue !== void 0) {
-          try {
-            length = Number.parseInt(customValue);
-          } catch (error) {
-          }
-        }
-        break;
-      case "3":
-        break;
-    }
-  }
-  return length;
-};
-const removeLastChar = function(text, char) {
-  const strArr = [...text];
-  strArr.splice(text.lastIndexOf(char), 1);
-  return strArr.join("");
-};
-const changeRole = async function(adapter, log, state, role) {
+const removeFiles = async function(adapter, stationSerial, folderName, device_sn) {
   try {
-    const states = await adapter.getStatesAsync(`*.${state}`);
-    if (states)
-      Object.keys(states).forEach(async (id) => {
-        await adapter.extendObjectAsync(id, {
-          type: "state",
-          common: {
-            role
-          }
-        }, {}).catch();
-      });
+    const dir_path = import_node_path.default.join(stationSerial, folderName);
+    if (await adapter.fileExistsAsync(adapter.namespace, dir_path)) {
+      const files = (await adapter.readDirAsync(adapter.namespace, dir_path)).filter(
+        (fn) => fn.file.startsWith(device_sn)
+      );
+      try {
+        for (const filename of files) {
+          await adapter.delFileAsync(adapter.namespace, import_node_path.default.join(dir_path, filename.file));
+        }
+      } catch {
+      }
+    }
   } catch (error) {
-    log.error(`state: ${state} role: ${role} - Error:`, error);
+    throw new Error(`Failed to remove files: ${error}`);
   }
+};
+const compareVersions = (a, b) => {
+  const parts = (version) => version.split("-")[0].split(".").map((part) => Number.parseInt(part, 10) || 0);
+  const pa = parts(a);
+  const pb = parts(b);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
+    if (diff !== 0) {
+      return diff;
+    }
+  }
+  return 0;
 };
 const deleteStates = async function(adapter, property) {
   const states = await adapter.getStatesAsync(`*.${property}`);
-  if (states)
-    Object.keys(states).forEach(async (id) => {
-      await adapter.delObjectAsync(id).catch();
-    });
+  if (states) {
+    const ids = Object.keys(states);
+    for (const id of ids) {
+      await adapter.delObjectAsync(id).catch(() => {
+      });
+    }
+  }
 };
-const handleUpdate = async function(adapter, log, oldVersion, newVersion) {
-  if (oldVersion != 0 && oldVersion <= 0.61) {
+const handleUpdate = async function(adapter, log, oldVersion) {
+  var _a;
+  if (oldVersion === "") {
+    return;
+  }
+  if (compareVersions(oldVersion, "0.6.1") <= 0) {
     try {
       const all = await adapter.getStatesAsync("T*");
       if (all) {
-        Object.keys(all).forEach(async (id) => {
-          await adapter.delObjectAsync(id, { recursive: false }).catch();
-        });
+        const ids = Object.keys(all);
+        for (const id of ids) {
+          await adapter.delObjectAsync(id, { recursive: false }).catch(() => {
+          });
+        }
       }
       const channels = await adapter.getChannelsOfAsync();
       if (channels) {
-        Object.values(channels).forEach(async (channel) => {
+        for (const channel of channels) {
           if (channel.common.name !== "info") {
-            await adapter.delObjectAsync(channel._id, { recursive: false }).catch();
+            await adapter.delObjectAsync(channel._id, { recursive: false }).catch(() => {
+            });
           }
-        });
+        }
       }
       const devices = await adapter.getDevicesAsync();
       if (devices) {
-        Object.values(devices).forEach(async (device) => {
-          await adapter.delObjectAsync(device._id, { recursive: false }).catch();
-        });
+        for (const device of devices) {
+          await adapter.delObjectAsync(device._id, { recursive: false }).catch(() => {
+          });
+        }
       }
     } catch (error) {
       log.error("Version 0.6.1: Error:", error);
     }
   }
-  if (oldVersion != 0 && oldVersion <= 0.74) {
+  if (compareVersions(oldVersion, "0.7.4") <= 0) {
     try {
       await adapter.setObjectAsync("verify_code", {
         type: "state",
@@ -208,7 +165,7 @@ const handleUpdate = async function(adapter, log, oldVersion, newVersion) {
       log.error("Version 0.7.4: Error:", error);
     }
   }
-  if (oldVersion != 0 && oldVersion <= 1) {
+  if (compareVersions(oldVersion, "1.0.0") <= 0) {
     for (const state of ["last_event_pic_url", "last_event_pic_html", "last_event_video_url"]) {
       try {
         await deleteStates(adapter, state);
@@ -217,35 +174,47 @@ const handleUpdate = async function(adapter, log, oldVersion, newVersion) {
       }
     }
   }
-  if (oldVersion == 0 && newVersion == 1.3) {
-    const data_dir = utils.getAbsoluteInstanceDataDir(adapter);
+  if (compareVersions(oldVersion, "3.2.1") <= 0) {
     try {
-      const file = import_node_path.default.join(data_dir, "adapter.json");
-      if (import_fs_extra.default.statSync(file).isFile()) {
-        const fileContent = import_fs_extra.default.readFileSync(file, "utf8");
-        await adapter.writeFileAsync(adapter.namespace, "adapter.json", fileContent);
+      const objects = await adapter.getAdapterObjectsAsync();
+      for (const [id, obj] of Object.entries(objects)) {
+        if (id.endsWith(".set_privacy_angle") && ((_a = obj.common) == null ? void 0 : _a.name) === "Set Default Angle") {
+          await adapter.extendObjectAsync(id, { common: { name: "Set Privacy Angle" } });
+        }
       }
     } catch (error) {
+      log.error("Version 3.2.1 - set_privacy_angle: Error:", error);
     }
     try {
-      const file = import_node_path.default.join(data_dir, "persistent.json");
-      if (import_fs_extra.default.statSync(file).isFile()) {
-        const fileContent = import_fs_extra.default.readFileSync(file, "utf8");
-        await adapter.writeFileAsync(adapter.namespace, "driver.json", fileContent);
+      const objects = await adapter.getAdapterObjectsAsync();
+      for (const [id, obj] of Object.entries(objects)) {
+        if (!id.endsWith(".titl_down")) {
+          continue;
+        }
+        const newId = `${id.slice(0, -"titl_down".length)}tilt_down`;
+        if (objects[newId] === void 0) {
+          await adapter.setObjectAsync(newId, { ...obj, _id: newId });
+        }
+        await adapter.delObjectAsync(id);
       }
     } catch (error) {
+      log.error("Version 3.2.1 - titl_down: Error:", error);
     }
-    try {
-      import_fs_extra.default.removeSync(data_dir);
-    } catch (error) {
+  }
+};
+const deleteEmptyUnknownChannels = async function(adapter) {
+  var _a;
+  const objects = await adapter.getAdapterObjectsAsync();
+  const ids = Object.keys(objects);
+  for (const [id, obj] of Object.entries(objects)) {
+    if (obj.type === "channel" && ((_a = obj.common) == null ? void 0 : _a.name) === "unknown" && !ids.some((other) => other.startsWith(`${id}.`))) {
+      await adapter.delObjectAsync(id);
     }
-    adapter.log.warn("Migrated configuration files to new location (needs restart). Restart of the adapter initiated.");
-    adapter.restartAdapter();
   }
 };
 const convertCamelCaseToSnakeCase = function(value) {
   return value.replace(/[A-Z]/g, (letter, index) => {
-    return index == 0 ? letter.toLowerCase() : "_" + letter.toLowerCase();
+    return index == 0 ? letter.toLowerCase() : `_${letter.toLowerCase()}`;
   });
 };
 function getShortUrl(url, prefixUrl) {
@@ -261,19 +230,17 @@ function getShortUrl(url, prefixUrl) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  changeRole,
+  commonChanged,
+  compareVersions,
   convertCamelCaseToSnakeCase,
+  deleteEmptyUnknownChannels,
   deleteStates,
   getImageAsHTML,
   getShortUrl,
-  getVideoClipLength,
   handleUpdate,
-  isEmpty,
-  lowestUnusedNumber,
   removeFiles,
-  removeLastChar,
-  setStateAsync,
+  setPropertyState,
   setStateChangedAsync,
-  sleep
+  toStateValue
 });
 //# sourceMappingURL=utils.js.map
