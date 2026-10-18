@@ -1,0 +1,422 @@
+/**
+ * Compatibility shims for the Eufy Mega/v6 backend.
+ *
+ * Development of eufy-security-client has ended (bropat/eufy-security-client#965), so defects that
+ * only show up against the migrated v6 backend have to be corrected here. Every shim in this file
+ * patches a prototype before EufySecurity.initialize() runs and documents the condition under which
+ * it can be deleted again.
+ *
+ * 1. Success code (see below): the v6 backend answers 200 where the library expects 0.
+ * 2. Legacy push check: a migrated account is rejected by the legacy push endpoint forever, but the
+ *    rejection is logged as an error on every push reconnect - see applyEufyApiCompatibility().
+ * 3. Stale v6 identity: a rejected identity is evicted but the failed call is not retried - same.
+ * 4. RSA PKCS#1 v1.5 decryption: a client option, see eufyClientOptions.
+ * 5. Unknown device types: devices the library does not know get no states - see applyEufyApiCompatibility().
+ * 6. Kept P2P connection: battery devices on permanent power can opt out of the 30s disconnect - same.
+ * 7. Floodlight Cam E30: defined like the Floodlight Cam E340, but its commands take another route - same.
+ *
+ * ## 1. Success code
+ *
+ * Eufy started answering with the HTTP style code 200 in the JSON body of endpoints that used to
+ * return the legacy application code 0. eufy-security-client accepts only 0
+ * (`ResponseErrorCode.CODE_OK`) and therefore reports perfectly valid answers as failures:
+ *
+ *     [http] [HTTPApi.getPassportProfile] Get passport profile - Response code not ok
+ *     [{"code":200,"msg":"","data":{...}}]
+ *
+ * The login never completes after that, and the house, station and device lists stay empty.
+ *
+ * Upstream carries the fix in bropat/eufy-security-client#975, but development of that library has
+ * ended (bropat/eufy-security-client#965), so it will most likely never be released. 21 of the 22
+ * affected comparisons read `response.data` of the public `HTTPApi.request()`, so normalizing the
+ * code in that single funnel repairs all of them at once.
+ *
+ * The 22nd is the static `HTTPApi.getApiBaseFromCloud()`, which calls got directly and talks to a
+ * different host (extend.eufylife.com). It is deliberately left untouched: a failure there aborts
+ * the login with an ApiBaseLoadError long before a profile is ever requested, which is not the
+ * behaviour reported in the field.
+ *
+ * Remove this shim once the adapter depends on a library version that accepts both codes.
+ *
+ * ## 2. Legacy push check
+ *
+ * `EufySecurity` registers the FCM token on the legacy and on the v6 backend independently and
+ * treats push as established if EITHER accepted it. Its own comment states that "a migrated account
+ * is rejected by the legacy endpoint", yet `HTTPApi.checkPushToken()` logs that expected rejection
+ * at error level:
+ *
+ *     [http] [HTTPApi.checkPushToken] Check push token - Response code not ok
+ *     [{"code":10003,"msg":"Anfrage fehlgeschlagen.",...}]
+ *
+ * For a migrated account the check can never succeed, but it runs again on every push reconnect,
+ * which is what iobroker-community-adapters/ioBroker.eusec#173 reports. The results are not used
+ * anywhere either: the library assigns them to `pushCloudRegistered`/`pushCloudChecked` and never
+ * reads those again. So the first rejection is remembered and the endpoint is not asked a second
+ * time - that keeps the single honest error of a genuinely broken legacy registration while
+ * dropping the repetition, and saves two HTTP round trips per reconnect.
+ *
+ * Remove this shim once the library stops asking the legacy endpoint for migrated accounts.
+ *
+ * ## 3. Stale v6 identity
+ *
+ * The v6 session persists the per-cluster ECDH identities, so after a restart the first signed call
+ * can be made with an identity the backend has already dropped. `MegaHTTPApi.signedPost()` detects
+ * that (`CODE_NEED_NEGOTIATE_KEY`), evicts the cached identities - and then returns the failure to
+ * the caller instead of repeating the call, so the re-handshake it just triggered is wasted:
+ *
+ *     [http] [MegaHTTPApi.signedPost] MegaApi identity rejected - evicting cached identities [{"code":4404}]
+ *     [main] [MegaTransition.registerMegaPushToken] v6 push: register_push_token returned a non-zero code
+ *     [main] Push notification connection closed
+ *
+ * On every adapter start push therefore reports itself closed first and only establishes ~10s later,
+ * on the next attempt. `MegaHTTPApi.call()` is the single funnel every signed v6 request goes
+ * through, so retrying there once - after the eviction, with a freshly negotiated identity - covers
+ * push registration and every other v6 call.
+ *
+ * Remove this shim once the library retries an evicted identity itself.
+ *
+ * ## 4. RSA PKCS#1 v1.5 decryption
+ *
+ * Unlike the shims above this one is a client option, see eufyClientOptions. A camera hands out the
+ * AES key of its P2P stream RSA-encrypted with PKCS#1 v1.5 padding. node-rsa decrypts that with
+ * node's `crypto.privateDecrypt()`, which node builds without implicit rejection refuse since the
+ * fix for CVE-2023-46809:
+ *
+ *     [p2p] [P2PClientProtocol.handleDataBinaryAndVideo] Error: AES key could not be decrypted!
+ *     ... TypeError: RSA_PKCS1_PADDING is no longer supported for private decryption
+ *
+ * The whole stream is discarded then (iobroker-community-adapters/ioBroker.eusec#144). The old
+ * workaround, `--security-revert=CVE-2023-46809`, is rejected by node 22 and later.
+ * `enableEmbeddedPKCS1Support` makes node-rsa use its own JavaScript implementation instead, which
+ * works on every node build. The keys are 1024 bit and decrypted once per stream, so the slower
+ * implementation costs nothing noticeable.
+ *
+ * ## 5. Unknown device types
+ *
+ * The library creates an `UnknownDevice` without any states for device types it does not know. The
+ * eufyCam C31 (T817L, type 10031, iobroker-community-adapters/ioBroker.eusec#156) is one of them.
+ * Its owner reports that livestream, motion and person detection, light and alarm work once the type
+ * is replaced by 60 (`SOLO_CAMERA_SPOTLIGHT_1080`). The device and the station list are the only
+ * places the type comes from, so both are rewritten right after they are fetched. The raw params of
+ * such a device are logged once, since the library no longer logs it as unknown.
+ *
+ * Known limit: type 60 has no pan/tilt command and carries battery states the wired C31 lacks. A
+ * type of its own needs a C31 on the bench.
+ *
+ * ## 6. Kept P2P connection
+ *
+ * The library marks every device type with a battery as an energy saving device and closes its P2P
+ * connection 30 seconds after the last command, whether the device runs on its battery or on a power
+ * supply or solar panel (iobroker-community-adapters/ioBroker.eusec#33). Every later command and
+ * stream has to reconnect first. `P2PClientProtocol.updateRawStation()` is where the flag is set,
+ * from the station list, so the stations configured in `keepConnectedStations` get it cleared right
+ * after. The library then treats them like a mains powered station: no 30 second disconnect, and a
+ * reconnect whenever the connection drops.
+ *
+ * This is an opt-in, not a correction: on a device that really runs on its battery it drains the
+ * battery. Remove it once the library offers such an option itself.
+ *
+ * ## 7. Floodlight Cam E30
+ *
+ * The library defines the Floodlight Cam E30 (T8426, type 87) with exactly the properties of the
+ * Floodlight Cam E340 (T8425, type 47), down to the T8425 specific command codes, and with its
+ * commands. But `Device.isFloodLightT8425()`, which every station command and setter asks to pick
+ * the payload, does not include it, so the E30 lands in branches written for older floodlights:
+ * the preset commands are never sent, and the livestream start is rejected with
+ * ERROR_INVALID_ACCOUNT (-104) (both reported in the forum). bropat/eufy-security-client#948 made
+ * four E30 stream by sending them the T8425 payload. Every caller goes through the static
+ * classifier, so it is widened there once.
+ *
+ * Known limit: only the livestream is confirmed on real cameras. Presets, talkback, calibration and
+ * the light and detection settings now take the T8425 route as well, and so does pan and tilt, which
+ * worked on the generic route before.
+ */
+
+import { Device, DeviceType, HTTPApi, MegaHTTPApi, P2PClientProtocol, ResponseErrorCode } from 'eufy-security-client';
+import type {
+    ApiResponse,
+    DeviceListResponse,
+    EufySecurityConfig,
+    HTTPApiRequest,
+    MegaResult,
+    StationListResponse,
+} from 'eufy-security-client';
+
+/** Client options the adapter always passes to EufySecurity.initialize() - see section 4 above. */
+export const eufyClientOptions: Pick<EufySecurityConfig, 'enableEmbeddedPKCS1Support'> = {
+    enableEmbeddedPKCS1Support: true,
+};
+
+/** Device types the library does not know, mapped to the known type that serves them best. */
+const DEVICE_TYPE_SUBSTITUTES: Readonly<Record<number, DeviceType>> = {
+    10031: DeviceType.SOLO_CAMERA_SPOTLIGHT_1080, // eufyCam C31 (T817L), see #156
+};
+
+/** An entry of a device or station list whose type was replaced, with the type it had before. */
+export interface SubstitutedEntry {
+    type: number;
+    entry: Record<string, unknown>;
+}
+
+/**
+ * Replaces unknown device types in a device or station list, in place.
+ *
+ * @param list The decrypted device or station list
+ * @returns The entries that were changed, each with its original type
+ */
+export const substituteDeviceTypes = (list: unknown): SubstitutedEntry[] => {
+    if (!Array.isArray(list)) {
+        return [];
+    }
+    const replaced: SubstitutedEntry[] = [];
+    for (const entry of list as Record<string, unknown>[]) {
+        const type = entry?.device_type;
+        const substitute = typeof type === 'number' ? DEVICE_TYPE_SUBSTITUTES[type] : undefined;
+        if (substitute !== undefined) {
+            replaced.push({ type: type as number, entry });
+            entry.device_type = substitute;
+        }
+    }
+    return replaced;
+};
+
+/**
+ * Describes a substituted device the way the library describes an unknown one, so its owner can
+ * post the parameters needed to give it a type of its own.
+ *
+ * @param substituted A device list entry returned by substituteDeviceTypes()
+ * @returns A log line with the identifying fields and the raw params
+ */
+export const describeSubstitutedDevice = (substituted: SubstitutedEntry): string => {
+    const { type, entry } = substituted;
+    return (
+        `Parameters of ${String(entry.device_name)} (type ${type}, model ${String(entry.device_model)}, ` +
+        `firmware ${String(entry.main_sw_version)}, hardware ${String(entry.main_hw_version)}) - please post them ` +
+        `in #156 with serial numbers, IP addresses, WLAN names, keys and tokens replaced by xxx: ${JSON.stringify(
+            entry.params,
+        )}`
+    );
+};
+
+/** Legacy application success code of the Eufy API. */
+const LEGACY_SUCCESS_CODE = ResponseErrorCode.CODE_OK;
+
+/** HTTP style success code the Mega/v6 backend returns instead. It is not a member of ResponseErrorCode. */
+const HTTP_SUCCESS_CODE = 200;
+
+/** Codes with which the v6 backend rejects an identity; MegaHTTPApi evicts the cache on both. */
+const IDENTITY_REJECTED_CODES: readonly number[] = [
+    ResponseErrorCode.CODE_NEED_NEGOTIATE_KEY,
+    ResponseErrorCode.CODE_SIGNATURE_ERROR,
+];
+
+/**
+ * Whether a v6 response says the identity it was signed with is no longer accepted. MegaHTTPApi has
+ * dropped the cached identities by the time such a response is returned, so repeating the call
+ * negotiates a new one.
+ *
+ * @param result The parsed body of a v6 API response
+ * @returns true if the call should be repeated with a freshly negotiated identity
+ */
+export const isIdentityRejected = (result: unknown): boolean => {
+    if (result === null || typeof result !== 'object') {
+        return false;
+    }
+    const { code } = result as { code?: unknown };
+    return typeof code === 'number' && IDENTITY_REJECTED_CODES.includes(code);
+};
+
+/**
+ * Rewrites the HTTP style success code of a response body to the legacy one, in place. Only the
+ * code is touched - the encrypted payload in `data` is passed through untouched.
+ *
+ * @param data The parsed body of an Eufy API response
+ * @returns true if the code was rewritten, false if the body was left as it was
+ */
+export const normalizeSuccessCode = (data: unknown): boolean => {
+    if (data === null || typeof data !== 'object') {
+        return false;
+    }
+    const result = data as { code?: unknown };
+    if (result.code !== HTTP_SUCCESS_CODE) {
+        return false;
+    }
+    result.code = LEGACY_SUCCESS_CODE;
+    return true;
+};
+
+/** Serial numbers of the stations whose P2P connection stays open - see section 6 above. */
+const keptStations = new Set<string>();
+
+/**
+ * Normalizes the `keepConnectedStations` setting to a list of serial numbers. Admin stores it as an
+ * array; a comma separated string is accepted as well.
+ *
+ * @param value The setting as read from the instance configuration
+ * @returns The trimmed, upper case serial numbers without duplicates or empty entries
+ */
+export const parseSerialList = (value: unknown): string[] => {
+    const items: unknown[] = Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : [];
+    const serials = items
+        .filter((item): item is string => typeof item === 'string')
+        .map(item => item.trim().toUpperCase())
+        .filter(item => item !== '');
+    return [...new Set(serials)];
+};
+
+/**
+ * Sets the stations whose P2P connection stays open, replacing the previous list.
+ *
+ * @param serials Serial numbers as returned by parseSerialList()
+ */
+export const keepStationsConnected = (serials: string[]): void => {
+    keptStations.clear();
+    for (const serial of serials) {
+        keptStations.add(serial);
+    }
+};
+
+let patched = false;
+
+/**
+ * Applies every shim described at the top of this module. Must run before
+ * EufySecurity.initialize(); applying it more than once is a no-op.
+ *
+ * @param log Called once per shim, the first time it has to correct something
+ */
+export const applyEufyApiCompatibility = (log: (message: string) => void): void => {
+    if (patched) {
+        return;
+    }
+    patched = true;
+
+    // 1. Rewrite the HTTP style success code so the library understands its own responses.
+    const originalRequest = HTTPApi.prototype.request;
+    let reportedSuccessCode = false;
+
+    HTTPApi.prototype.request = async function (
+        request: HTTPApiRequest,
+        withoutUrlPrefix?: boolean,
+    ): Promise<ApiResponse> {
+        const response = await originalRequest.call(this, request, withoutUrlPrefix);
+        if (normalizeSuccessCode(response?.data) && !reportedSuccessCode) {
+            reportedSuccessCode = true;
+            log(
+                'The Eufy API answers with the HTTP style code 200 where the legacy code 0 is expected. The adapter normalizes it - see bropat/eufy-security-client#975.',
+            );
+        }
+        return response;
+    };
+
+    // 2. Ask the legacy push endpoint once. A migrated account is rejected by it for good.
+    const originalCheckPushToken = HTTPApi.prototype.checkPushToken;
+    let legacyPushRejected = false;
+
+    HTTPApi.prototype.checkPushToken = async function (): Promise<boolean> {
+        if (legacyPushRejected) {
+            return false;
+        }
+        const accepted = await originalCheckPushToken.call(this);
+        if (!accepted) {
+            legacyPushRejected = true;
+            log(
+                'The legacy push endpoint rejected this account, which is expected once it has been migrated to the v6 backend. The adapter stops asking it - push is delivered over v6.',
+            );
+        }
+        return accepted;
+    };
+
+    // 3. Repeat a v6 call whose identity the backend rejected, using the renegotiated one.
+    const originalCall = MegaHTTPApi.prototype.call;
+    let reportedIdentityRetry = false;
+
+    MegaHTTPApi.prototype.call = async function (host: string, path: string, payload: unknown): Promise<MegaResult> {
+        const result = await originalCall.call(this, host, path, payload);
+        if (!isIdentityRejected(result)) {
+            return result;
+        }
+        if (!reportedIdentityRetry) {
+            reportedIdentityRetry = true;
+            log(
+                'The v6 backend rejected a stored identity. The adapter repeats the call with a renegotiated one instead of reporting push as closed.',
+            );
+        }
+        return originalCall.call(this, host, path, payload);
+    };
+
+    // 5. Give devices the library does not know a type it can handle.
+    const originalGetDeviceList = HTTPApi.prototype.getDeviceList;
+    const originalGetStationList = HTTPApi.prototype.getStationList;
+    const reportedDeviceTypes = new Set<number>();
+    const reportedDevices = new Set<unknown>();
+    const reportSubstitutes = (substituted: SubstitutedEntry[]): void => {
+        for (const { type } of substituted) {
+            if (!reportedDeviceTypes.has(type)) {
+                reportedDeviceTypes.add(type);
+                log(
+                    `Device type ${type} is not known to eufy-security-client. The adapter treats it as type ${DEVICE_TYPE_SUBSTITUTES[type]} - see #156.`,
+                );
+            }
+        }
+    };
+
+    HTTPApi.prototype.getDeviceList = async function (): Promise<DeviceListResponse[]> {
+        const devices = await originalGetDeviceList.call(this);
+        const substituted = substituteDeviceTypes(devices);
+        reportSubstitutes(substituted);
+        for (const device of substituted) {
+            if (!reportedDevices.has(device.entry.device_sn)) {
+                reportedDevices.add(device.entry.device_sn);
+                log(describeSubstitutedDevice(device));
+            }
+        }
+        return devices;
+    };
+
+    HTTPApi.prototype.getStationList = async function (): Promise<StationListResponse[]> {
+        const stations = await originalGetStationList.call(this);
+        reportSubstitutes(substituteDeviceTypes(stations));
+        return stations;
+    };
+
+    // 6. Keep the P2P connection of the configured battery devices open.
+    const originalUpdateRawStation = P2PClientProtocol.prototype.updateRawStation;
+    const reportedKeptStations = new Set<string>();
+
+    P2PClientProtocol.prototype.updateRawStation = function (value: StationListResponse): void {
+        originalUpdateRawStation.call(this, value);
+        // The flag is private in the typings; it is a plain field at runtime.
+        const session = this as unknown as { energySavingDevice: boolean };
+        const serial = value?.station_sn;
+        if (!session.energySavingDevice || !keptStations.has(serial)) {
+            return;
+        }
+        session.energySavingDevice = false;
+        if (!reportedKeptStations.has(serial)) {
+            reportedKeptStations.add(serial);
+            log(
+                `Station ${serial} is a battery device, but it is configured to stay connected: its P2P connection is kept open and reopened when it drops, which drains the battery if the device is not on permanent power.`,
+            );
+        }
+    };
+
+    // 7. Send the Floodlight Cam E30 the commands of the Floodlight Cam E340 it is defined as.
+    const originalIsFloodLightT8425 = Device.isFloodLightT8425;
+    let reportedFloodlightE30 = false;
+
+    Device.isFloodLightT8425 = function (type: number): boolean {
+        if (originalIsFloodLightT8425.call(this, type)) {
+            return true;
+        }
+        if (!Device.isFloodLightT8426(type)) {
+            return false;
+        }
+        if (!reportedFloodlightE30) {
+            reportedFloodlightE30 = true;
+            log(
+                'The library defines the Floodlight Cam E30 (T8426) like the Floodlight Cam E340 (T8425), but sends it the commands of older floodlights. The adapter makes it send the E340 commands.',
+            );
+        }
+        return true;
+    };
+};

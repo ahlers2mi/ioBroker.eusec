@@ -9,6 +9,9 @@ declare global {
             country: string;
             pollingInterval: number;
             maxLivestreamDuration: number;
+            livestreamDataWait: number;
+            livestreamQuality: string;
+            livestreamOnDemand: boolean;
             eventDuration: number;
             pictureStartupGrace: number;
             pictureMinInterval: number;
@@ -16,6 +19,8 @@ declare global {
             verificationMethod: number;
             p2pConnectionType: string;
             acceptInvitations: boolean;
+            keepConnectedStations: string[];
+            compatStreamDevices: string[];
             alarmSoundDuration: number;
             go2rtc_api_port: number;
             go2rtc_rtsp_port: number;
@@ -24,7 +29,6 @@ declare global {
             go2rtc_rtsp_username: string;
             go2rtc_rtsp_password: string;
             hostname: string;
-            https: boolean;
         }
     }
 }
