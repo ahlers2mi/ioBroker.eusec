@@ -2,6 +2,7 @@
 
   - [Description](description.md)
   - [Features](features.md)
+  - [Supported devices](devices.md)
   - [License](license.md)
 
 - Getting started

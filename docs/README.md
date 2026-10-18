@@ -8,20 +8,25 @@
 ![Number of Installations (latest)](https://iobroker.live/badges/eusec-installed.svg)
 ![Number of Installations (stable)](https://iobroker.live/badges/eusec-stable.svg)
 [![Dependency Status](https://img.shields.io/librariesio/release/npm/iobroker.eusec)](https://libraries.io/npm/iobroker.eusec)
-[![Known Vulnerabilities](https://snyk.io/test/github/bropat/ioBroker.euSec/badge.svg)](https://snyk.io/test/github/bropat/ioBroker.euSec)
 
+**Tests:** ![Test and Release](https://github.com/iobroker-community-adapters/ioBroker.eusec/workflows/Test%20and%20Release/badge.svg)
 
-
-
-**Tests:** Linux/Mac: [![Build Status](https://travis-ci.org/bropat/ioBroker.euSec.svg?branch=master)](https://travis-ci.org/bropat/ioBroker.euSec)
-
-[![NPM](https://nodei.co/npm/iobroker.eusec.png?downloads=true)](https://nodei.co/npm/iobroker.eusec/)
-
-This is an [ioBroker](https://www.iobroker.net) adapter that uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to comunicate with Eufy devices.
-
-If you appreciate my work and progress and want to support me, you can do it here:
-
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E332Q6Z)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.me/pbroetto)
+This is an [ioBroker](https://www.iobroker.net) adapter that uses the [eufy-security-client](https://github.com/bropat/eufy-security-client) library to communicate with Eufy devices.
 
 **This project is not affiliated with Anker and Eufy (Eufy Security). It is a personal project that is maintained in spare time.**
+
+## Contents
+
+- Overview
+    - [Description](description.md)
+    - [Features](features.md)
+    - [Supported devices](devices.md)
+    - [License](license.md)
+- Getting started
+    - [Installation](installation.md)
+    - [Configuration](configuration.md)
+    - [Authentication](authentication.md)
+    - [sendTo](sendTo.md)
+- Troubleshooting
+    - [Debugging](debugging.md)
+    - [FAQ](faq.md)
